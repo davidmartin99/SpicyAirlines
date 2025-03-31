@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "205345978508",
+    "project_id": "spicyairlines",
+    "storage_bucket": "spicyairlines.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:205345978508:android:da70355a83ed767216e3a9",
+        "android_client_info": {
+          "package_name": "com.spicyairlines.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCj7ZxQtcCcLHemyDgdhO-TmHGozzGK0Wo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

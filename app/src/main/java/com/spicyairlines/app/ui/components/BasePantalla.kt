@@ -1,0 +1,37 @@
+package com.spicyairlines.app.components
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BasePantalla(
+    title: String,
+    onBack: (() -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = title) },
+                navigationIcon = {
+                    if (onBack != null) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                        }
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Surface(
+            modifier = Modifier.padding(padding)
+        ) {
+            content()
+        }
+    }
+}
