@@ -122,7 +122,14 @@ fun NavigationGraph(
         }
 
         composable(Screen.Perfil.route) {
-            PerfilScreen() // viewModel() se llama dentro del screen
+            PerfilScreen(
+                onCerrarSesion = {
+                    navController.navigate(Screen.AuthInicio.route) {
+                        popUpTo(Screen.Inicio.route) { inclusive = true }
+                    }
+                }
+            )
         }
+
     }
 }

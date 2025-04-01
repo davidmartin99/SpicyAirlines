@@ -1,11 +1,14 @@
 package com.spicyairlines.app.model
 
+import com.google.firebase.Timestamp
+
 data class Reserva(
-    val uidUsuario: String = "",
+    val idUsuario: String = "",
     val vueloId: String = "",
     val clase: String = "",
-    val pasajeros: List<Pasajero> = emptyList(),
     val precioTotal: Double = 0.0,
-    val fechaReserva: String = "",
-    val estado: Boolean = true
+    val fechaReserva: Timestamp = Timestamp.now(),
+    val estado: Boolean = true,
+    val adultos: Int = 0,
+    val menores: Int = 0
 )

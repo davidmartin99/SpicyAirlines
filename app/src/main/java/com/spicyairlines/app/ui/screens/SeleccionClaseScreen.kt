@@ -26,7 +26,7 @@ fun SeleccionClaseScreen(
 
     BasePantalla(title = "Selecciona clase") {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Vuelo a ${vuelo.destino} (${vuelo.fechaSalida} - ${vuelo.fechaVuelta})")
+            Text("Vuelo a ${vuelo.ciudadDestino} (${vuelo.fechaIda} - ${vuelo.fechaVuelta})")
             Spacer(modifier = Modifier.height(16.dp))
 
             val precios = mapOf(
@@ -44,7 +44,7 @@ fun SeleccionClaseScreen(
                     onClick = {
                         if (!agotado) {
                             sharedViewModel.claseSeleccionada = clase
-                            sharedViewModel.precioTotal = precios[clase] ?: vuelo.precioBase
+                            sharedViewModel.precioTotal = (precios[clase] ?: vuelo.precioBase).toDouble()
                             onContinuarClick()
                         }
                     },

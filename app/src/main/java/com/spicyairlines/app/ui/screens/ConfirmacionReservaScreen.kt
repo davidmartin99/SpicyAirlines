@@ -34,7 +34,7 @@ fun ConfirmacionReservaScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("Resumen de la reserva")
-            Text("Vuelo a: ${vuelo?.destino}")
+            Text("Vuelo a: ${vuelo?.ciudadDestino}")
             Text("Clase: $clase")
             Text("Pasajeros: ${pasajeros.size}")
             Text("Total: $total €")

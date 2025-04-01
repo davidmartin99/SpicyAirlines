@@ -33,7 +33,7 @@ class ResultadosViewModel : ViewModel() {
                         val vuelo = doc.toObject(Vuelo::class.java)
                         vuelo?.copy(id = doc.id)
                     }.filter {
-                        it.fechaSalida >= fechaIda && it.fechaVuelta <= fechaVuelta
+                        it.fechaIda >= fechaIda && it.fechaVuelta <= fechaVuelta
                     }
                     _vuelos.value = lista
                 }

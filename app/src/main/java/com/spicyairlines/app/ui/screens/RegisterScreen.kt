@@ -14,7 +14,6 @@ fun RegisterScreen(
     viewModel: RegisterViewModel = viewModel(),
     onRegisterSuccess: () -> Unit
 ) {
-    var nickname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var nombre by remember { mutableStateOf("") }
@@ -33,7 +32,6 @@ fun RegisterScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OutlinedTextField(value = nickname, onValueChange = { nickname = it }, label = { Text("Nickname (ID)") })
             OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Correo electrónico") })
             OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Contraseña") })
             OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") })
@@ -45,8 +43,14 @@ fun RegisterScreen(
 
             Button(onClick = {
                 viewModel.register(
-                    nickname, email, password, nombre, apellidos,
-                    ciudad, provincia, codigoPostal, telefono,
+                    email = email,
+                    password = password,
+                    nombre = nombre,
+                    apellidos = apellidos,
+                    ciudad = ciudad,
+                    provincia = provincia,
+                    codigoPostal = codigoPostal,
+                    telefono = telefono,
                     onSuccess = onRegisterSuccess
                 )
             }, modifier = Modifier.fillMaxWidth()) {

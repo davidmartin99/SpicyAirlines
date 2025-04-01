@@ -39,8 +39,8 @@ fun ResultadosScreen(
                             .clickable { onVueloSeleccionado(vuelo) }
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Destino: ${vuelo.destino}")
-                            Text("Fecha ida: ${vuelo.fechaSalida}")
+                            Text("Destino: ${vuelo.ciudadDestino}")
+                            Text("Fecha ida: ${vuelo.fechaIda}")
                             Text("Fecha vuelta: ${vuelo.fechaVuelta}")
                             Text("Precio base: ${vuelo.precioBase}€")
                         }

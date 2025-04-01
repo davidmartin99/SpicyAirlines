@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.spicyairlines.app.model.Pasajero
 import com.spicyairlines.app.model.Reserva
 import com.spicyairlines.app.model.Vuelo
-import java.time.LocalDateTime
+import com.google.firebase.Timestamp
 
 class ConfirmacionReservaViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
@@ -26,11 +26,11 @@ class ConfirmacionReservaViewModel : ViewModel() {
         }
 
         val reserva = Reserva(
-            uidUsuario = uid,
+            idUsuario = uid,
             vueloId = vuelo.id,
             clase = clase,
             precioTotal = precioTotal,
-            fechaReserva = LocalDateTime.now().toString(),
+            fechaReserva = Timestamp.now(),
             estado = true
         )
 

@@ -3,18 +3,19 @@ package com.spicyairlines.app.viewmodel
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.spicyairlines.app.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class RegisterViewModel : ViewModel() {
+
     private val auth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
     fun register(
-        nickname: String,
         email: String,
         password: String,
         nombre: String,
@@ -25,32 +26,37 @@ class RegisterViewModel : ViewModel() {
         telefono: String,
         onSuccess: () -> Unit
     ) {
+        _error.value = null
+
         auth.createUserWithEmailAndPassword(email, password)
-            .addOnSuccessListener { result ->
-                val uid = result.user?.uid ?: return@addOnSuccessListener
+            .addOnSuccessListener { authResult ->
+                val uid = authResult.user?.uid
+                if (uid != null) {
+                    val usuario = Usuario(
+                        email = email,
+                        nombre = nombre,
+                        apellidos = apellidos,
+                        ciudad = ciudad,
+                        provincia = provincia,
+                        codigoPostal = codigoPostal,
+                        telefono = telefono
+                    )
 
-                val userData = mapOf(
-                    "id" to nickname,
-                    "email" to email,
-                    "nombre" to nombre,
-                    "apellidos" to apellidos,
-                    "ciudad" to ciudad,
-                    "provincia" to provincia,
-                    "codigoPostal" to codigoPostal,
-                    "telefono" to telefono
-                )
-
-                db.collection("usuarios").document(uid).set(userData)
-                    .addOnSuccessListener {
-                        _error.value = null
-                        onSuccess()
-                    }
-                    .addOnFailureListener { e ->
-                        _error.value = "Error al guardar usuario: ${e.message}"
-                    }
+                    firestore.collection("usuarios")
+                        .document(uid)
+                        .set(usuario)
+                        .addOnSuccessListener {
+                            onSuccess()
+                        }
+                        .addOnFailureListener {
+                            _error.value = "Error al guardar datos: ${it.message}"
+                        }
+                } else {
+                    _error.value = "No se pudo obtener el UID del usuario"
+                }
             }
-            .addOnFailureListener { e ->
-                _error.value = "Error al registrar: ${e.message}"
+            .addOnFailureListener {
+                _error.value = "Error de autenticación: ${it.message}"
             }
     }
 }
