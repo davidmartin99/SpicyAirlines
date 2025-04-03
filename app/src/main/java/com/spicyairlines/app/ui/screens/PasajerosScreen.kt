@@ -14,7 +14,7 @@ fun PasajerosScreen(
     viewModel: PasajerosViewModel = viewModel(),
     onContinuarClick: () -> Unit
 ) {
-    BasePantalla(title = "Datos de Pasajeros") {
+    BasePantalla() {
         Column(
             modifier = Modifier
                 .fillMaxSize()

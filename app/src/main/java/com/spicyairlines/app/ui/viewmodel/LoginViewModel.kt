@@ -20,8 +20,13 @@ class LoginViewModel : ViewModel() {
     private val _usuario = MutableStateFlow<Usuario?>(null)
     val usuario: StateFlow<Usuario?> = _usuario
 
+    // ✅ Estado de carga para mostrar el spinner
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun login(email: String, password: String, onSuccess: () -> Unit) {
         _error.value = null
+        _isLoading.value = true // empieza carga
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
@@ -29,10 +34,12 @@ class LoginViewModel : ViewModel() {
                 if (uid != null) {
                     cargarUsuarioDesdeFirestore(uid, onSuccess)
                 } else {
+                    _isLoading.value = false
                     _error.value = "No se pudo obtener el UID."
                 }
             }
             .addOnFailureListener {
+                _isLoading.value = false
                 _error.value = it.message
             }
     }
@@ -42,9 +49,11 @@ class LoginViewModel : ViewModel() {
             .addOnSuccessListener { doc ->
                 val usuario = doc.toObject(Usuario::class.java)
                 _usuario.value = usuario
+                _isLoading.value = false // termina carga
                 onSuccess()
             }
             .addOnFailureListener {
+                _isLoading.value = false
                 _error.value = "Error al cargar datos del usuario: ${it.message}"
             }
     }

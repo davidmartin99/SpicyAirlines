@@ -25,7 +25,7 @@ fun RegisterScreen(
 
     val error by viewModel.error.collectAsState()
 
-    BasePantalla(title = "Registro") {
+    BasePantalla() {
         Column(
             modifier = Modifier
                 .fillMaxSize()

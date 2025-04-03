@@ -12,7 +12,7 @@ import com.spicyairlines.app.components.BasePantalla
 fun PagoCompletadoScreen(
     onVolverInicio: () -> Unit
 ) {
-    BasePantalla(title = "¡Reserva confirmada!") {
+    BasePantalla() {
         Column(
             modifier = Modifier
                 .fillMaxSize()

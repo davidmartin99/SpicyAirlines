@@ -25,7 +25,7 @@ fun ConfirmacionReservaScreen(
     val pasajeros = sharedViewModel.pasajeros
     val total = sharedViewModel.precioTotal
 
-    BasePantalla(title = "Confirmar Reserva") {
+    BasePantalla() {
         Column(
             modifier = Modifier
                 .fillMaxSize()

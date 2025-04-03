@@ -70,7 +70,8 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.navigation.runtime.android)
-    implementation(libs.androidx.navigation.compose) // Firebase Authentication
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.foundation.android) // Firebase Authentication
 
     // Dependencias de prueba
     testImplementation(libs.junit)

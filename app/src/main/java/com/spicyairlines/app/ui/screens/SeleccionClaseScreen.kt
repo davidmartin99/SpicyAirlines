@@ -24,7 +24,7 @@ fun SeleccionClaseScreen(
         viewModel.consultarAsientosDisponibles(vuelo.id)
     }
 
-    BasePantalla(title = "Selecciona clase") {
+    BasePantalla() {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Vuelo a ${vuelo.ciudadDestino} (${vuelo.fechaIda} - ${vuelo.fechaVuelta})")
             Spacer(modifier = Modifier.height(16.dp))

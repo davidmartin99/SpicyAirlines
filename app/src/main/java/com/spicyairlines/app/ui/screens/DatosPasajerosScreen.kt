@@ -27,7 +27,7 @@ fun DatosPasajerosScreen(
 
     val pasajeros by viewModel.pasajeros.collectAsState()
 
-    BasePantalla(title = "Datos de pasajeros") {
+    BasePantalla() {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())

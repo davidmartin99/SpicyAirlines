@@ -26,7 +26,7 @@ fun ResultadosScreen(
 
     val vuelos by viewModel.vuelos.collectAsState()
 
-    BasePantalla(title = "Resultados de Vuelos") {
+    BasePantalla() {
         Column(modifier = Modifier.padding(16.dp)) {
             if (vuelos.isEmpty()) {
                 Text("No se encontraron vuelos.")

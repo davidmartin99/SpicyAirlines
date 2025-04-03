@@ -13,7 +13,7 @@ fun PantallaInicioAuth(
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
-    BasePantalla(title = "Bienvenido a SpicyAirlines") {
+    BasePantalla() {
         Column(
             modifier = Modifier
                 .fillMaxSize()

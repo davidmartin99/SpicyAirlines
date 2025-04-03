@@ -50,6 +50,9 @@ fun NavigationGraph(
                     navController.navigate(Screen.Inicio.route) {
                         popUpTo(Screen.AuthInicio.route) { inclusive = true }
                     }
+                },
+                onBack = {
+                    navController.popBackStack() // <- volver a la pantalla anterior
                 }
             )
         }

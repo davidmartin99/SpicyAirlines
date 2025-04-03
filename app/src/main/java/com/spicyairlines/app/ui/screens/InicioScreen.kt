@@ -3,7 +3,9 @@ package com.spicyairlines.app.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spicyairlines.app.components.BasePantalla
@@ -14,27 +16,13 @@ fun InicioScreen(
     viewModel: InicioViewModel = viewModel(),
     onBuscarClick: () -> Unit
 ) {
-    BasePantalla(title = "SpicyAirlines") {
+    BasePantalla() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Selecciona destino:")
-
-            DropdownMenuDestino(
-                selected = viewModel.ciudadDestino.value,
-                onSeleccion = { viewModel.ciudadDestino.value = it }
-            )
-
-            OutlinedTextField(
-                value = viewModel.fechaIda.value,
-                onValueChange = { viewModel.fechaIda.value = it },
-                label = { Text("Fecha de ida (YYYY-MM-DD)") },
-                singleLine = true
-            )
-
             OutlinedTextField(
                 value = viewModel.fechaVuelta.value,
                 onValueChange = { viewModel.fechaVuelta.value = it },
