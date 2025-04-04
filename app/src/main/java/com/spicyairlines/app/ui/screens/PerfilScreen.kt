@@ -18,7 +18,8 @@ import java.util.*
 @Composable
 fun PerfilScreen(
     viewModel: PerfilViewModel = viewModel(),
-    onCerrarSesion: () -> Unit
+    onCerrarSesion: () -> Unit,
+    onBack: () -> Unit
 ) {
     val reservas by viewModel.reservas.collectAsState()
     val auth = FirebaseAuth.getInstance()

@@ -15,6 +15,8 @@ import com.spicyairlines.app.viewmodel.LoginViewModel
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.platform.LocalFocusManager
+import com.spicyairlines.app.ui.components.PasswordTextFieldConCheckbox
+
 
 @Composable
 fun LoginScreen(
@@ -51,20 +53,11 @@ fun LoginScreen(
                 )
             )
 
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Contraseña") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = { focusManager.clearFocus() }
-                )
+            PasswordTextFieldConCheckbox(
+                password = password,
+                onPasswordChange = { password = it }
             )
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -89,3 +82,4 @@ fun LoginScreen(
         }
     }
 }
+

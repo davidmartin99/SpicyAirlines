@@ -14,9 +14,12 @@ import com.spicyairlines.app.viewmodel.InicioViewModel
 @Composable
 fun InicioScreen(
     viewModel: InicioViewModel = viewModel(),
-    onBuscarClick: () -> Unit
+    onBuscarClick: () -> Unit,
+    onPerfilClick: () -> Unit
 ) {
-    BasePantalla() {
+    BasePantalla(
+        onPerfilClick = onPerfilClick
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

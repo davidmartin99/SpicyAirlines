@@ -17,7 +17,7 @@ import com.spicyairlines.app.R
 @Composable
 fun BasePantalla(
     onBack: (() -> Unit)? = null,
-    onUserClick: (() -> Unit)? = null,
+    onPerfilClick: (() -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
@@ -50,11 +50,11 @@ fun BasePantalla(
                     }
                 },
                 actions = {
-                    if (onUserClick != null) {
-                        IconButton(onClick = onUserClick) {
+                    if (onPerfilClick != null) {
+                        IconButton(onClick = onPerfilClick) {
                             Icon(
                                 painter = painterResource(id = R.drawable.user_circle),
-                                contentDescription = "Usuario",
+                                contentDescription = "Perfil",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
@@ -88,7 +88,7 @@ fun BasePantallaPreview() {
     AppTheme {
         BasePantalla(
             onBack = { /* acción volver */ },
-            onUserClick = { /* acción perfil */ }
+            onPerfilClick = { /* acción perfil */ }
         ) { padding ->
             Column(
                 modifier = Modifier

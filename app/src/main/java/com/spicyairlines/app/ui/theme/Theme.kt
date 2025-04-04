@@ -353,7 +353,7 @@ fun AppTheme(
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = darkScheme, // 🟣 Tema fijo (oscuro)
+        colorScheme = mediumContrastDarkColorScheme, // 🟣 Tema fijo (oscuro)
         typography = AppTypography,
         content = content
     )

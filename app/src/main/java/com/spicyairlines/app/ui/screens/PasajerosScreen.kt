@@ -12,9 +12,14 @@ import com.spicyairlines.app.viewmodel.PasajerosViewModel
 @Composable
 fun PasajerosScreen(
     viewModel: PasajerosViewModel = viewModel(),
-    onContinuarClick: () -> Unit
+    onContinuarClick: () -> Unit,
+    onPerfilClick: () -> Unit,
+    onBack: () -> Unit
 ) {
-    BasePantalla() {
+    BasePantalla(
+        onBack = onBack,
+        onPerfilClick = onPerfilClick
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

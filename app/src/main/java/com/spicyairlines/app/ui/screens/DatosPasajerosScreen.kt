@@ -17,7 +17,9 @@ import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 fun DatosPasajerosScreen(
     sharedViewModel: SharedViewModel, // ✅ Añade esto
     onContinuarClick: () -> Unit,
-    viewModel: DatosPasajerosViewModel = viewModel()
+    viewModel: DatosPasajerosViewModel = viewModel(),
+    onPerfilClick: () -> Unit,
+    onBack: () -> Unit
 ) {
     val totalPasajeros = sharedViewModel.totalPasajeros
 
@@ -27,7 +29,10 @@ fun DatosPasajerosScreen(
 
     val pasajeros by viewModel.pasajeros.collectAsState()
 
-    BasePantalla() {
+    BasePantalla(
+        onBack = onBack,
+        onPerfilClick = onPerfilClick
+    ) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())

@@ -14,7 +14,9 @@ import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 fun SeleccionClaseScreen(
     sharedViewModel: SharedViewModel,
     onContinuarClick: () -> Unit,
-    viewModel: SeleccionClaseViewModel = viewModel()
+    viewModel: SeleccionClaseViewModel = viewModel(),
+    onPerfilClick: () -> Unit,
+    onBack: () -> Unit
 ) {
     val vuelo = sharedViewModel.vueloSeleccionado ?: return
 
@@ -24,7 +26,10 @@ fun SeleccionClaseScreen(
         viewModel.consultarAsientosDisponibles(vuelo.id)
     }
 
-    BasePantalla() {
+    BasePantalla(
+        onBack = onBack,
+        onPerfilClick = onPerfilClick
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Vuelo a ${vuelo.ciudadDestino} (${vuelo.fechaIda} - ${vuelo.fechaVuelta})")
             Spacer(modifier = Modifier.height(16.dp))

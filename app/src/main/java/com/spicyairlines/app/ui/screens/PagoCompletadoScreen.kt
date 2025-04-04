@@ -10,7 +10,7 @@ import com.spicyairlines.app.components.BasePantalla
 
 @Composable
 fun PagoCompletadoScreen(
-    onVolverInicio: () -> Unit
+    onVolverInicio: () -> Unit,
 ) {
     BasePantalla() {
         Column(

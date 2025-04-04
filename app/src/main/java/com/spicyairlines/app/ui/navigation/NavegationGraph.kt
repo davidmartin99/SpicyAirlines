@@ -12,7 +12,6 @@ sealed class Screen(val route: String) {
     object AuthInicio : Screen("authInicio")
     object Login : Screen("login")
     object Register : Screen("register")
-
     object Inicio : Screen("inicio")
     object Resultados : Screen("resultados")
     object SeleccionClase : Screen("seleccionClase")
@@ -27,11 +26,9 @@ sealed class Screen(val route: String) {
 fun NavigationGraph(
     navController: NavHostController,
     sharedViewModel: SharedViewModel
-
 ) {
     NavHost(navController = navController, startDestination = Screen.AuthInicio.route) {
 
-        // Pantalla de bienvenida con botones de login/registro
         composable(Screen.AuthInicio.route) {
             PantallaInicioAuth(
                 onLoginClick = {
@@ -43,7 +40,6 @@ fun NavigationGraph(
             )
         }
 
-        // Pantalla de Login
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = {
@@ -51,28 +47,28 @@ fun NavigationGraph(
                         popUpTo(Screen.AuthInicio.route) { inclusive = true }
                     }
                 },
-                onBack = {
-                    navController.popBackStack() // <- volver a la pantalla anterior
-                }
+                onBack = { navController.popBackStack() }
             )
         }
 
-        // Pantalla de Registro
         composable(Screen.Register.route) {
             RegisterScreen(
                 onRegisterSuccess = {
                     navController.navigate(Screen.Inicio.route) {
                         popUpTo(Screen.AuthInicio.route) { inclusive = true }
                     }
-                }
+                },
+                onBack = { navController.popBackStack() }
             )
         }
 
-        // Pantallas de reserva
         composable(Screen.Inicio.route) {
             InicioScreen(
                 onBuscarClick = {
                     navController.navigate(Screen.Resultados.route)
+                },
+                onPerfilClick = {
+                    navController.navigate(Screen.Perfil.route)
                 }
             )
         }
@@ -81,7 +77,9 @@ fun NavigationGraph(
             ResultadosScreen(
                 onVueloSeleccionado = {
                     navController.navigate(Screen.SeleccionClase.route)
-                }
+                },
+                onBack = { navController.popBackStack() },
+                onPerfilClick = { navController.navigate(Screen.Perfil.route) }
             )
         }
 
@@ -90,27 +88,31 @@ fun NavigationGraph(
                 sharedViewModel = sharedViewModel,
                 onContinuarClick = {
                     navController.navigate(Screen.DatosPasajeros.route)
-                }
+                },
+                onBack = { navController.popBackStack() },
+                onPerfilClick = { navController.navigate(Screen.Perfil.route) }
             )
         }
-
 
         composable(Screen.DatosPasajeros.route) {
             DatosPasajerosScreen(
                 sharedViewModel = sharedViewModel,
                 onContinuarClick = {
                     navController.navigate(Screen.ConfirmacionReserva.route)
-                }
+                },
+                onBack = { navController.popBackStack() },
+                onPerfilClick = { navController.navigate(Screen.Perfil.route) }
             )
         }
-
 
         composable(Screen.ConfirmacionReserva.route) {
             ConfirmacionReservaScreen(
                 sharedViewModel = sharedViewModel,
                 onConfirmarClick = {
                     navController.navigate(Screen.PagoCompletado.route)
-                }
+                },
+                onBack = { navController.popBackStack() },
+                onPerfilClick = { navController.navigate(Screen.Perfil.route) }
             )
         }
 
@@ -130,9 +132,11 @@ fun NavigationGraph(
                     navController.navigate(Screen.AuthInicio.route) {
                         popUpTo(Screen.Inicio.route) { inclusive = true }
                     }
-                }
+                },
+                onBack = { navController.popBackStack() }
             )
         }
-
     }
 }
+
+

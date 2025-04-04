@@ -14,7 +14,9 @@ import com.spicyairlines.app.viewmodel.ResultadosViewModel
 @Composable
 fun ResultadosScreen(
     onVueloSeleccionado: (Vuelo) -> Unit,
-    viewModel: ResultadosViewModel = viewModel()
+    viewModel: ResultadosViewModel = viewModel(),
+    onPerfilClick: () -> Unit,
+    onBack: () -> Unit
 ) {
     val destino = viewModel.destino
     val fechaIda = viewModel.fechaIda
@@ -26,7 +28,10 @@ fun ResultadosScreen(
 
     val vuelos by viewModel.vuelos.collectAsState()
 
-    BasePantalla() {
+    BasePantalla(
+        onBack = onBack,
+        onPerfilClick = onPerfilClick
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             if (vuelos.isEmpty()) {
                 Text("No se encontraron vuelos.")

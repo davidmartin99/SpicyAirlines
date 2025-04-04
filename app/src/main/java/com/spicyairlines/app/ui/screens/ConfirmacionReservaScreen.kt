@@ -15,7 +15,9 @@ import com.spicyairlines.app.viewmodel.ConfirmacionReservaViewModel
 fun ConfirmacionReservaScreen(
     sharedViewModel: SharedViewModel,
     viewModel: ConfirmacionReservaViewModel = viewModel(),
-    onConfirmarClick: () -> Unit
+    onConfirmarClick: () -> Unit,
+    onPerfilClick: () -> Unit,
+    onBack: () -> Unit
 ) {
     var cargando by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -25,7 +27,10 @@ fun ConfirmacionReservaScreen(
     val pasajeros = sharedViewModel.pasajeros
     val total = sharedViewModel.precioTotal
 
-    BasePantalla() {
+    BasePantalla(
+        onBack = onBack,
+        onPerfilClick = onPerfilClick
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
