@@ -6,6 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.spicyairlines.app.model.Pasajero
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.util.*
 
 class DatosPasajerosViewModel : ViewModel() {
 
@@ -37,10 +38,10 @@ class DatosPasajerosViewModel : ViewModel() {
         _pasajeros.value = lista
     }
 
-    fun actualizarFechaNacimiento(index: Int, fecha: Timestamp) {
+    fun actualizarFechaNacimiento(index: Int, fecha: Date) {
         val lista = _pasajeros.value.toMutableList()
         if (index in lista.indices) {
-            lista[index] = lista[index].copy(fechaNacimiento = fecha)
+            lista[index] = lista[index].copy(fechaNacimiento = Timestamp(fecha))
             _pasajeros.value = lista
         }
     }

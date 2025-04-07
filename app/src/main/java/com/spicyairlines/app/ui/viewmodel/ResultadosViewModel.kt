@@ -25,29 +25,26 @@ class ResultadosViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val vuelos = db.collection("Vuelos")
+                    .whereEqualTo("destino", destino)
                     .get()
                     .await()
                     .documents.mapNotNull { doc ->
                         doc.toObject(Vuelo::class.java)?.copy(id = doc.id)
                     }
 
-                // Vuelos de ida: origen = Madrid, destino = seleccionado
+                // Vuelos de ida
                 _vuelosIda.value = vuelos.filter {
-                    it.origen == "Madrid" &&
-                            it.destino == destino &&
-                            fechaIda != null &&
-                            it.fechaSalida >= fechaIda
+                    it.fechaSalida >= (fechaIda ?: Timestamp.now()) // Asegúrate de que la fecha de ida se compara como Timestamp
                 }
 
-                // Vuelos de vuelta: origen = destino, destino = Madrid
-                _vuelosVuelta.value = if (fechaVuelta != null) {
-                    vuelos.filter {
+                // Vuelos de vuelta (solo si hay fecha)
+                if (fechaVuelta != null) {
+                    _vuelosVuelta.value = vuelos.filter {
                         it.origen == destino &&
-                                it.destino == "Madrid" &&
-                                it.fechaSalida >= fechaVuelta
+                                it.fechaSalida >= fechaVuelta // Se compara la fecha de vuelta también como Timestamp
                     }
                 } else {
-                    emptyList()
+                    _vuelosVuelta.value = emptyList()
                 }
 
             } catch (e: Exception) {
@@ -57,4 +54,5 @@ class ResultadosViewModel : ViewModel() {
             }
         }
     }
+
 }

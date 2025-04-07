@@ -59,10 +59,9 @@ fun DatosPasajerosScreen(
 
                 DatePickerFirebase(
                     label = "Fecha de nacimiento",
-                    initialDate = pasajero.fechaNacimiento,
+                    initialDate = pasajero.fechaNacimiento.toDate(), // ✅ Ya no necesitas el operador `?.`
                     onDateSelected = { viewModel.actualizarFechaNacimiento(index, it) }
                 )
-
 
 
 

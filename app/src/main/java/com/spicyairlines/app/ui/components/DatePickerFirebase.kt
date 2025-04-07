@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
@@ -14,8 +15,8 @@ import java.util.*
 @Composable
 fun DatePickerFirebase(
     label: String,
-    initialDate: Timestamp?,
-    onDateSelected: (Timestamp) -> Unit
+    initialDate: Date,
+    onDateSelected: (Date) -> Unit
 ) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -23,9 +24,7 @@ fun DatePickerFirebase(
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
     var selectedDate by remember {
-        mutableStateOf(
-            initialDate?.toDate()?.let { dateFormat.format(it) } ?: ""
-        )
+        mutableStateOf(dateFormat.format(initialDate))
     }
 
     fun showDatePickerDialog(context: Context) {
@@ -33,7 +32,7 @@ fun DatePickerFirebase(
             calendar.set(year, month, dayOfMonth, 0, 0, 0)
             val date = calendar.time
             selectedDate = dateFormat.format(date)
-            onDateSelected(Timestamp(date))
+            onDateSelected(date)
         }
 
         val dateParts = selectedDate.split("/").mapNotNull { it.toIntOrNull() }
@@ -55,7 +54,7 @@ fun DatePickerFirebase(
         onValueChange = {},
         readOnly = true,
         label = { Text(label) },
-        modifier = androidx.compose.ui.Modifier
+        modifier = Modifier
             .fillMaxWidth()
             .clickable { showDatePickerDialog(context) }
     )
