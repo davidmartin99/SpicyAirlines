@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spicyairlines.app.components.BasePantalla
+import com.spicyairlines.app.components.DatePickerFirebase
 import com.spicyairlines.app.viewmodel.DatosPasajerosViewModel
 import com.spicyairlines.app.model.Pasajero // ✅ Este es el único cambio necesario
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
@@ -56,12 +57,14 @@ fun DatosPasajerosScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
-                    value = pasajero.fechaNacimiento,
-                    onValueChange = { viewModel.actualizarCampo(index, "fechaNacimiento", it) },
-                    label = { Text("Fecha de nacimiento (YYYY-MM-DD)") },
-                    modifier = Modifier.fillMaxWidth()
+                DatePickerFirebase(
+                    label = "Fecha de nacimiento",
+                    initialDate = pasajero.fechaNacimiento,
+                    onDateSelected = { viewModel.actualizarFechaNacimiento(index, it) }
                 )
+
+
+
 
                 OutlinedTextField(
                     value = pasajero.numeroPasaporte,

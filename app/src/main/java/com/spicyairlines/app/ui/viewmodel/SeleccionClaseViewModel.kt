@@ -19,11 +19,14 @@ class SeleccionClaseViewModel : ViewModel() {
             db.collection("Vuelos").document(vueloId).get()
                 .addOnSuccessListener { doc ->
                     val mapa = mapOf(
-                        "Turista" to (doc.getLong("disponiblesTurista") ?: 0L).toInt(),
-                        "Premium" to (doc.getLong("disponiblesPremium") ?: 0L).toInt(),
-                        "Business" to (doc.getLong("disponiblesBusiness") ?: 0L).toInt(),
+                        "Turista" to (doc.getLong("asientosTurista") ?: 0L).toInt(),
+                        "Premium" to (doc.getLong("asientosPremium") ?: 0L).toInt(),
+                        "Business" to (doc.getLong("asientosBusiness") ?: 0L).toInt()
                     )
                     _disponibilidad.value = mapa
+                }
+                .addOnFailureListener {
+                    _disponibilidad.value = emptyMap() // por si falla la carga
                 }
         }
     }

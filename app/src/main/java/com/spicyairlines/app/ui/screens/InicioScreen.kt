@@ -3,36 +3,50 @@ package com.spicyairlines.app.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.Timestamp
 import com.spicyairlines.app.components.BasePantalla
+import com.spicyairlines.app.components.DatePickerFirebase
 import com.spicyairlines.app.viewmodel.InicioViewModel
+import com.spicyairlines.app.viewmodel.ResultadosViewModel
 
 @Composable
 fun InicioScreen(
     viewModel: InicioViewModel = viewModel(),
+    resultadosViewModel: ResultadosViewModel = viewModel(),
     onBuscarClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
-    BasePantalla(
-        onPerfilClick = onPerfilClick
-    ) {
+    BasePantalla(onPerfilClick = onPerfilClick) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OutlinedTextField(
-                value = viewModel.fechaVuelta.value,
-                onValueChange = { viewModel.fechaVuelta.value = it },
-                label = { Text("Fecha de vuelta (YYYY-MM-DD)") },
-                singleLine = true
+            // Ciudad destino
+            DropdownMenuDestino(
+                selected = viewModel.ciudadDestino.value,
+                onSeleccion = { viewModel.ciudadDestino.value = it }
             )
 
+            // Fecha ida
+            DatePickerFirebase(
+                label = "Fecha de ida",
+                initialDate = viewModel.fechaIda.value,
+                onDateSelected = { viewModel.fechaIda.value = it }
+            )
+
+            // Fecha vuelta (opcional)
+            DatePickerFirebase(
+                label = "Fecha de vuelta (opcional)",
+                initialDate = viewModel.fechaVuelta.value,
+                onDateSelected = { viewModel.fechaVuelta.value = it }
+            )
+
+            // Adultos
             OutlinedTextField(
                 value = viewModel.adultos.value.toString(),
                 onValueChange = { viewModel.adultos.value = it.toIntOrNull() ?: 0 },
@@ -40,6 +54,7 @@ fun InicioScreen(
                 singleLine = true
             )
 
+            // Niños
             OutlinedTextField(
                 value = viewModel.ninos.value.toString(),
                 onValueChange = { viewModel.ninos.value = it.toIntOrNull() ?: 0 },
@@ -48,8 +63,16 @@ fun InicioScreen(
             )
 
             Button(
-                onClick = onBuscarClick,
-                modifier = Modifier.fillMaxWidth()
+                onClick = {
+                    resultadosViewModel.cargarVuelos(
+                        destino = viewModel.ciudadDestino.value,
+                        fechaIda = viewModel.fechaIda.value,
+                        fechaVuelta = viewModel.fechaVuelta.value
+                    )
+                    onBuscarClick()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = viewModel.fechaIda.value != null && viewModel.ciudadDestino.value.isNotBlank()
             ) {
                 Text("Buscar vuelos")
             }
@@ -59,9 +82,12 @@ fun InicioScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownMenuDestino(selected: String, onSeleccion: (String) -> Unit) {
+fun DropdownMenuDestino(
+    selected: String,
+    onSeleccion: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    val ciudades = listOf("Chongqing", "Chengdu")
+    val ciudades = listOf("Madrid", "Chongqing", "Chengdu")
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -73,7 +99,7 @@ fun DropdownMenuDestino(selected: String, onSeleccion: (String) -> Unit) {
             readOnly = true,
             label = { Text("Ciudad de destino") },
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded)
             },
             modifier = Modifier.menuAnchor()
         )

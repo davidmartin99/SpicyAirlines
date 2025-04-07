@@ -1,20 +1,17 @@
 package com.spicyairlines.app.model
 
+import com.google.firebase.Timestamp
+
 data class Vuelo(
     val id: String = "",
-    val origen: String = "Madrid",
-    val ciudadDestino: String = "",
-    val fechaIda: String = "",
-    val fechaVuelta: String = "",
-    val horaSalidaIda: String = "",
-    val horaLlegada: String = "",
-    val horaSalidaVuelta: String = "",
-    val horaLlegadaVuelta: String = "",
-    val duracionIda: String = "",
-    val duracionVuelta: String = "",
-    val temporada: String = "baja",
+    val origen: String = "",
+    val destino: String = "",
+    val fechaSalida: Timestamp = Timestamp.now(),
+    val fechaLlegada: Timestamp = Timestamp.now(),
+    val duracion: String = "",
+    val temporada: String = "",
     val precioBase: Int = 0,
-    val asientosTurista: Int = 300,
-    val asientosPremium: Int = 100,
-    val asientosBusiness: Int = 50
+    val asientosTurista: Int = 0,
+    val asientosPremium: Int = 0,
+    val asientosBusiness: Int = 0
 )

@@ -2,41 +2,59 @@ package com.spicyairlines.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.toObject
 import com.spicyairlines.app.model.Vuelo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class ResultadosViewModel : ViewModel() {
 
-    var destino: String = ""
-    var fechaIda: String = ""
-    var fechaVuelta: String = ""
-
-    private val _vuelos = MutableStateFlow<List<Vuelo>>(emptyList())
-    val vuelos: StateFlow<List<Vuelo>> = _vuelos
-
     private val db = FirebaseFirestore.getInstance()
 
-    fun cargarVuelos(destino: String, fechaIda: String, fechaVuelta: String) {
-        this.destino = destino
-        this.fechaIda = fechaIda
-        this.fechaVuelta = fechaVuelta
+    private val _vuelosIda = MutableStateFlow<List<Vuelo>>(emptyList())
+    val vuelosIda: StateFlow<List<Vuelo>> = _vuelosIda
 
+    private val _vuelosVuelta = MutableStateFlow<List<Vuelo>>(emptyList())
+    val vuelosVuelta: StateFlow<List<Vuelo>> = _vuelosVuelta
+
+    fun cargarVuelos(destino: String, fechaIda: Timestamp?, fechaVuelta: Timestamp?) {
         viewModelScope.launch {
-            db.collection("Vuelos")
-                .whereEqualTo("destino", destino)
-                .get()
-                .addOnSuccessListener { result ->
-                    val lista = result.documents.mapNotNull { doc ->
-                        val vuelo = doc.toObject(Vuelo::class.java)
-                        vuelo?.copy(id = doc.id)
-                    }.filter {
-                        it.fechaIda >= fechaIda && it.fechaVuelta <= fechaVuelta
+            try {
+                val vuelos = db.collection("Vuelos")
+                    .get()
+                    .await()
+                    .documents.mapNotNull { doc ->
+                        doc.toObject(Vuelo::class.java)?.copy(id = doc.id)
                     }
-                    _vuelos.value = lista
+
+                // Vuelos de ida: origen = Madrid, destino = seleccionado
+                _vuelosIda.value = vuelos.filter {
+                    it.origen == "Madrid" &&
+                            it.destino == destino &&
+                            fechaIda != null &&
+                            it.fechaSalida >= fechaIda
                 }
+
+                // Vuelos de vuelta: origen = destino, destino = Madrid
+                _vuelosVuelta.value = if (fechaVuelta != null) {
+                    vuelos.filter {
+                        it.origen == destino &&
+                                it.destino == "Madrid" &&
+                                it.fechaSalida >= fechaVuelta
+                    }
+                } else {
+                    emptyList()
+                }
+
+            } catch (e: Exception) {
+                _vuelosIda.value = emptyList()
+                _vuelosVuelta.value = emptyList()
+                println("Error al cargar vuelos: ${e.message}")
+            }
         }
     }
 }

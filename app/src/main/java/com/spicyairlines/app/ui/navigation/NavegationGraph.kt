@@ -1,12 +1,14 @@
 package com.spicyairlines.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.spicyairlines.app.screens.*
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.viewmodel.PerfilViewModel
+import com.spicyairlines.app.viewmodel.ResultadosViewModel
 
 sealed class Screen(val route: String) {
     object AuthInicio : Screen("authInicio")
@@ -25,7 +27,9 @@ sealed class Screen(val route: String) {
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
-    sharedViewModel: SharedViewModel
+    sharedViewModel: SharedViewModel,
+    resultadosViewModel: ResultadosViewModel = viewModel() //
+
 ) {
     NavHost(navController = navController, startDestination = Screen.AuthInicio.route) {
 
@@ -64,6 +68,7 @@ fun NavigationGraph(
 
         composable(Screen.Inicio.route) {
             InicioScreen(
+                resultadosViewModel = resultadosViewModel,
                 onBuscarClick = {
                     navController.navigate(Screen.Resultados.route)
                 },
@@ -73,15 +78,18 @@ fun NavigationGraph(
             )
         }
 
+
         composable(Screen.Resultados.route) {
             ResultadosScreen(
-                onVueloSeleccionado = {
+                sharedViewModel = sharedViewModel, // ✅ también importante
+                onSeleccionarVuelo = {
                     navController.navigate(Screen.SeleccionClase.route)
                 },
                 onBack = { navController.popBackStack() },
                 onPerfilClick = { navController.navigate(Screen.Perfil.route) }
             )
         }
+
 
         composable(Screen.SeleccionClase.route) {
             SeleccionClaseScreen(

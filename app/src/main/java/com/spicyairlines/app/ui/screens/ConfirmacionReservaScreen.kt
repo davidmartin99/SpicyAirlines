@@ -19,13 +19,26 @@ fun ConfirmacionReservaScreen(
     onPerfilClick: () -> Unit,
     onBack: () -> Unit
 ) {
+    val vueloIda by sharedViewModel.vueloSeleccionado.collectAsState()
+    val vueloVuelta by sharedViewModel.vueloVueltaSeleccionado.collectAsState()
+    val clase by sharedViewModel.claseSeleccionada.collectAsState()
+    val pasajeros by sharedViewModel.pasajeros.collectAsState()
+    val total by sharedViewModel.precioTotal.collectAsState()
+
     var cargando by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    val vuelo = sharedViewModel.vueloSeleccionado
-    val clase = sharedViewModel.claseSeleccionada
-    val pasajeros = sharedViewModel.pasajeros
-    val total = sharedViewModel.precioTotal
+    if (vueloIda == null) {
+        BasePantalla(onBack = onBack, onPerfilClick = onPerfilClick) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No se ha seleccionado un vuelo.")
+            }
+        }
+        return
+    }
 
     BasePantalla(
         onBack = onBack,
@@ -38,8 +51,20 @@ fun ConfirmacionReservaScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Resumen de la reserva")
-            Text("Vuelo a: ${vuelo?.ciudadDestino}")
+            Text("Resumen de la reserva", style = MaterialTheme.typography.titleMedium)
+
+            // Vuelo de ida
+            Text("✈️ Ida: ${vueloIda!!.origen} → ${vueloIda!!.destino}")
+            Text("   Salida: ${vueloIda!!.fechaSalida.toDate()}")
+            Text("   Llegada: ${vueloIda!!.fechaLlegada.toDate()}")
+
+            // Vuelo de vuelta (opcional)
+            vueloVuelta?.let {
+                Text("🛬 Vuelta: ${it.origen} → ${it.destino}")
+                Text("   Salida: ${it.fechaSalida.toDate()}")
+                Text("   Llegada: ${it.fechaLlegada.toDate()}")
+            }
+
             Text("Clase: $clase")
             Text("Pasajeros: ${pasajeros.size}")
             Text("Total: $total €")
@@ -47,23 +72,27 @@ fun ConfirmacionReservaScreen(
             if (cargando) {
                 CircularProgressIndicator()
             } else {
-                Button(onClick = {
-                    cargando = true
-                    viewModel.guardarReservaFirebase(
-                        vuelo = vuelo!!,
-                        clase = clase,
-                        pasajeros = pasajeros,
-                        precioTotal = total,
-                        onSuccess = {
-                            cargando = false
-                            onConfirmarClick()
-                        },
-                        onFailure = {
-                            cargando = false
-                            error = "Error: ${it.message}"
-                        }
-                    )
-                }) {
+                Button(
+                    onClick = {
+                        cargando = true
+                        viewModel.guardarReservaFirebase(
+                            vueloIda = vueloIda!!,
+                            vueloVuelta = vueloVuelta,
+                            clase = clase,
+                            pasajeros = pasajeros,
+                            precioTotal = total,
+                            onSuccess = {
+                                cargando = false
+                                onConfirmarClick()
+                            },
+                            onFailure = {
+                                cargando = false
+                                error = "Error: ${it.message}"
+                            }
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text("Confirmar")
                 }
             }

@@ -6,6 +6,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.Timestamp
+import com.google.type.Date
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.viewmodel.PasajerosViewModel
 
@@ -44,11 +46,15 @@ fun PasajerosScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = pasajero.fechaNacimiento,
-                    onValueChange = { viewModel.actualizarPasajero(index, it, "fechaNacimiento") },
+                    value = pasajero.fechaNacimiento.toDate().toString(),  // Convertir a String
+                    onValueChange = { newDate ->
+                        val newTimestamp = Timestamp(java.util.Date(newDate)) // Convierte el String de vuelta a Timestamp
+                        viewModel.actualizarPasajero(index, newTimestamp.toString(), "fechaNacimiento")
+                    },
                     label = { Text("Fecha de nacimiento (YYYY-MM-DD)") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextField(
                     value = pasajero.numeroPasaporte,
                     onValueChange = { viewModel.actualizarPasajero(index, it, "numeroPasaporte") },

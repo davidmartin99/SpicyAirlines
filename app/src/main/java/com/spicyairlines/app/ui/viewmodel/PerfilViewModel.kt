@@ -24,30 +24,52 @@ class PerfilViewModel : ViewModel() {
 
         viewModelScope.launch {
             db.collection("reservas")
-                .whereEqualTo("uidUsuario", uid)
+                .whereEqualTo("idUsuario", uid)  // Cambié el campo a "idUsuario" según lo que se tenía en el modelo de reserva
                 .get()
                 .addOnSuccessListener { reservaDocs ->
                     val reservasTemp = mutableListOf<ReservaConVuelo>()
 
                     for (reservaDoc in reservaDocs) {
                         val reserva = reservaDoc.toObject(Reserva::class.java)
-                        val vueloId = reserva.vueloId
+                        val vuelosIds = reserva.vuelos  // Ahora obtenemos la lista de vuelos
 
-                        db.collection("vuelos")
-                            .document(vueloId)
-                            .get()
-                            .addOnSuccessListener { vueloDoc ->
-                                val vuelo = vueloDoc.toObject(Vuelo::class.java)
-                                if (vuelo != null) {
-                                    reservasTemp.add(
-                                        ReservaConVuelo(
-                                            reserva = reserva,
-                                            vuelo = vuelo
+                        // Si hay un vuelo de ida (el primer vuelo en la lista de "vuelos")
+                        vuelosIds.getOrNull(0)?.let { vueloId ->
+                            db.collection("vuelos")
+                                .document(vueloId)
+                                .get()
+                                .addOnSuccessListener { vueloDoc ->
+                                    val vuelo = vueloDoc.toObject(Vuelo::class.java)
+                                    if (vuelo != null) {
+                                        reservasTemp.add(
+                                            ReservaConVuelo(
+                                                reserva = reserva,
+                                                vuelo = vuelo
+                                            )
                                         )
-                                    )
-                                    _reservas.value = reservasTemp.sortedByDescending { it.reserva.fechaReserva }
+                                        _reservas.value = reservasTemp.sortedByDescending { it.reserva.fechaReserva }
+                                    }
                                 }
-                            }
+                        }
+
+                        // Si hay un vuelo de vuelta (el segundo vuelo en la lista de "vuelos")
+                        vuelosIds.getOrNull(1)?.let { vueloIdVuelta ->
+                            db.collection("vuelos")
+                                .document(vueloIdVuelta)
+                                .get()
+                                .addOnSuccessListener { vueloDocVuelta ->
+                                    val vueloVuelta = vueloDocVuelta.toObject(Vuelo::class.java)
+                                    if (vueloVuelta != null) {
+                                        reservasTemp.add(
+                                            ReservaConVuelo(
+                                                reserva = reserva,
+                                                vuelo = vueloVuelta
+                                            )
+                                        )
+                                        _reservas.value = reservasTemp.sortedByDescending { it.reserva.fechaReserva }
+                                    }
+                                }
+                        }
                     }
                 }
         }

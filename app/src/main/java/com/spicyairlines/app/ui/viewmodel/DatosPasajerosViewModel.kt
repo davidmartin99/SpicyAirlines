@@ -1,6 +1,7 @@
 package com.spicyairlines.app.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.spicyairlines.app.model.Pasajero
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,6 @@ class DatosPasajerosViewModel : ViewModel() {
         lista[index] = when (campo) {
             "nombre" -> pasajero.copy(nombre = valor)
             "apellidos" -> pasajero.copy(apellidos = valor)
-            "fechaNacimiento" -> pasajero.copy(fechaNacimiento = valor)
             "numeroPasaporte" -> pasajero.copy(numeroPasaporte = valor)
             "telefono" -> pasajero.copy(telefono = valor)
             else -> pasajero
@@ -37,7 +37,14 @@ class DatosPasajerosViewModel : ViewModel() {
         _pasajeros.value = lista
     }
 
-    // 🔽 FUNCIÓN para guardar los pasajeros como subcolección de una reserva
+    fun actualizarFechaNacimiento(index: Int, fecha: Timestamp) {
+        val lista = _pasajeros.value.toMutableList()
+        if (index in lista.indices) {
+            lista[index] = lista[index].copy(fechaNacimiento = fecha)
+            _pasajeros.value = lista
+        }
+    }
+
     fun guardarPasajeros(reservaId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val pasajerosList = _pasajeros.value
         val batch = db.batch()

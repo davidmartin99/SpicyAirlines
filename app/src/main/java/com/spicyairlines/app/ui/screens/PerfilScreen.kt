@@ -79,9 +79,9 @@ fun ReservaItem(reservaConVuelo: ReservaConVuelo) {
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Destino: ${reservaConVuelo.vuelo.ciudadDestino}", style = MaterialTheme.typography.titleMedium)
-            Text("Fecha ida: ${reservaConVuelo.vuelo.fechaIda}")
-            Text("Fecha vuelta: ${reservaConVuelo.vuelo.fechaVuelta}")
+            Text("Destino: ${reservaConVuelo.vuelo.destino}", style = MaterialTheme.typography.titleMedium)
+            Text("Fecha Salida: ${reservaConVuelo.vuelo.fechaSalida}")
+            Text("Fecha Llegada: ${reservaConVuelo.vuelo.fechaLlegada}")
             Text("Clase: ${reservaConVuelo.reserva.clase}")
             Text("Pasajeros: $totalPasajeros ($adultos adulto(s), $menores menor(es))")
             Text("Precio total: ${reservaConVuelo.reserva.precioTotal}€")
