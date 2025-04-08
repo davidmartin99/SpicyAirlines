@@ -1,58 +1,105 @@
 package com.spicyairlines.app.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import com.spicyairlines.app.model.Vuelo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class ResultadosViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
 
     private val _vuelosIda = MutableStateFlow<List<Vuelo>>(emptyList())
-    val vuelosIda: StateFlow<List<Vuelo>> = _vuelosIda
+    val vuelosIda: StateFlow<List<Vuelo>> = _vuelosIda.asStateFlow()
 
     private val _vuelosVuelta = MutableStateFlow<List<Vuelo>>(emptyList())
-    val vuelosVuelta: StateFlow<List<Vuelo>> = _vuelosVuelta
+    val vuelosVuelta: StateFlow<List<Vuelo>> = _vuelosVuelta.asStateFlow()
 
-    fun cargarVuelos(destino: String, fechaIda: Timestamp?, fechaVuelta: Timestamp?) {
+    private val _combinacionesValidas = MutableStateFlow<List<Pair<Vuelo, Vuelo>>>(emptyList())
+    val combinacionesValidas: StateFlow<List<Pair<Vuelo, Vuelo>>> = _combinacionesValidas.asStateFlow()
+
+    /**
+     * Carga vuelos desde Firebase según los filtros de búsqueda.
+     * Si se proporciona una fecha de vuelta, también busca vuelos de regreso.
+     *
+     * @param origen Ciudad de origen (ej: "Madrid")
+     * @param destino Ciudad de destino (ej: "Chongqing")
+     * @param fechaIda Fecha mínima de salida del vuelo de ida
+     * @param fechaVuelta Fecha mínima de salida del vuelo de vuelta (opcional)
+     */
+    fun cargarVuelos(
+        origen: String,
+        destino: String,
+        fechaIda: Timestamp?,
+        fechaVuelta: Timestamp?
+    ) {
+        if (fechaIda == null) {
+            Log.e("ResultadosViewModel12", "Error: fechaIda es null")
+            return
+        }
+
+        Log.d("ResultadosViewModel13", "🛫 Buscando vuelos: $origen → $destino desde ${fechaIda.toDate()}")
+
         viewModelScope.launch {
-            try {
-                val vuelos = db.collection("Vuelos")
-                    .whereEqualTo("destino", destino)
-                    .get()
-                    .await()
-                    .documents.mapNotNull { doc ->
-                        doc.toObject(Vuelo::class.java)?.copy(id = doc.id)
+            db.collection("Vuelos")
+                .whereEqualTo("origen", origen)
+                .whereEqualTo("destino", destino)
+                .whereGreaterThanOrEqualTo("fechaSalida", fechaIda)
+                .get()
+                .addOnSuccessListener { result ->
+                    val vuelosIdaList = result.documents.mapNotNull { it.toObject(Vuelo::class.java) }
+                    Log.d("ResultadosViewModel14", "✅ Vuelos de ida encontrados: ${vuelosIdaList.size}")
+                    _vuelosIda.value = vuelosIdaList
+
+                    // Si hay fecha de vuelta válida, buscar vuelos de vuelta
+                    if (fechaVuelta != null) {
+                        db.collection("Vuelos")
+                            .whereEqualTo("origen", destino)
+                            .whereEqualTo("destino", origen)
+                            .whereGreaterThanOrEqualTo("fechaSalida", fechaVuelta)
+                            .get()
+                            .addOnSuccessListener { vueltaResult ->
+                                val vuelosVueltaList = vueltaResult.documents.mapNotNull { it.toObject(Vuelo::class.java) }
+                                Log.d("ResultadosViewModel15", "🔁 Vuelos de vuelta encontrados: ${vuelosVueltaList.size}")
+                                _vuelosVuelta.value = vuelosVueltaList
+
+                                generarCombinacionesValidas()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("ResultadosViewModel16", "❌ Error al cargar vuelos de vuelta", e)
+                            }
+                    } else {
+                        _vuelosVuelta.value = emptyList()
+                        _combinacionesValidas.value = emptyList()
                     }
-
-                // Vuelos de ida
-                _vuelosIda.value = vuelos.filter {
-                    it.fechaSalida >= (fechaIda ?: Timestamp.now()) // Asegúrate de que la fecha de ida se compara como Timestamp
                 }
-
-                // Vuelos de vuelta (solo si hay fecha)
-                if (fechaVuelta != null) {
-                    _vuelosVuelta.value = vuelos.filter {
-                        it.origen == destino &&
-                                it.fechaSalida >= fechaVuelta // Se compara la fecha de vuelta también como Timestamp
-                    }
-                } else {
-                    _vuelosVuelta.value = emptyList()
+                .addOnFailureListener { e ->
+                    Log.e("ResultadosViewModel17", "❌ Error al cargar vuelos de ida", e)
                 }
-
-            } catch (e: Exception) {
-                _vuelosIda.value = emptyList()
-                _vuelosVuelta.value = emptyList()
-                println("Error al cargar vuelos: ${e.message}")
-            }
         }
     }
 
+    /**
+     * Genera combinaciones de ida y vuelta válidas.
+     * Solo combina vuelos si la salida del vuelo de vuelta es posterior a la llegada del vuelo de ida.
+     */
+    private fun generarCombinacionesValidas() {
+        val idaList = _vuelosIda.value
+        val vueltaList = _vuelosVuelta.value
+
+        val combinaciones = idaList.flatMap { ida ->
+            vueltaList.filter { vuelta ->
+                vuelta.fechaSalida.toDate().after(ida.fechaLlegada.toDate())
+            }.map { vuelta -> ida to vuelta }
+        }
+
+        Log.d("ResultadosViewModel18", "🔗 Combinaciones válidas generadas: ${combinaciones.size}")
+        _combinacionesValidas.value = combinaciones
+    }
 }

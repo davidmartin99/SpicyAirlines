@@ -1,8 +1,10 @@
 package com.spicyairlines.app.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,20 +32,17 @@ fun InicioScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Ciudad de origen
             DropdownMenuOrigen(
                 selected = viewModel.ciudadOrigen.value,
                 onSeleccion = { viewModel.ciudadOrigen.value = it }
             )
 
-            // Ciudad destino
             DropdownMenuDestino(
                 selected = viewModel.ciudadDestino.value,
                 onSeleccion = { viewModel.ciudadDestino.value = it },
                 ciudadOrigen = viewModel.ciudadOrigen.value
             )
 
-            // Fecha de ida
             DatePickerFirebase(
                 label = "Fecha de ida",
                 initialDate = viewModel.fechaIda.value?.toDate() ?: Date(),
@@ -53,15 +52,28 @@ fun InicioScreen(
                 }
             )
 
-            // Fecha de vuelta (opcional)
-            DatePickerFirebase(
-                label = "Fecha de vuelta (opcional)",
-                initialDate = viewModel.fechaVuelta.value?.toDate() ?: Date(),
-                onDateSelected = {
-                    viewModel.fechaVuelta.value = Timestamp(it)
-                    errorFecha = false
-                }
-            )
+            // Checkbox: solo ida
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = viewModel.soloIda.value,
+                    onCheckedChange = { viewModel.soloIda.value = it }
+                )
+                Text("Solo ida")
+            }
+
+            // Fecha de vuelta solo si NO está en modo solo ida
+            if (!viewModel.soloIda.value) {
+                DatePickerFirebase(
+                    label = "Fecha de vuelta",
+                    initialDate = viewModel.fechaVuelta.value?.toDate() ?: Date(),
+                    onDateSelected = {
+                        viewModel.fechaVuelta.value = Timestamp(it)
+                        errorFecha = false
+                    }
+                )
+            }
 
             if (errorFecha) {
                 Text(
@@ -69,6 +81,7 @@ fun InicioScreen(
                     color = MaterialTheme.colorScheme.error
                 )
             }
+
             if (errorPasajeros) {
                 Text(
                     text = "Debes seleccionar al menos 1 pasajero.",
@@ -76,7 +89,6 @@ fun InicioScreen(
                 )
             }
 
-            // Adultos
             OutlinedTextField(
                 value = viewModel.adultos.value.toString(),
                 onValueChange = { viewModel.adultos.value = it.toIntOrNull() ?: 0 },
@@ -84,7 +96,6 @@ fun InicioScreen(
                 singleLine = true
             )
 
-            // Niños
             OutlinedTextField(
                 value = viewModel.ninos.value.toString(),
                 onValueChange = { viewModel.ninos.value = it.toIntOrNull() ?: 0 },
@@ -95,14 +106,18 @@ fun InicioScreen(
             Button(
                 onClick = {
                     val ida = viewModel.fechaIda.value
-                    val vuelta = viewModel.fechaVuelta.value
+                    val vuelta = if (viewModel.soloIda.value) null else viewModel.fechaVuelta.value
                     val totalPasajeros = viewModel.adultos.value + viewModel.ninos.value
 
                     errorFecha = ida != null && vuelta != null && vuelta < ida
                     errorPasajeros = totalPasajeros == 0
 
-                    if (!errorFecha && !errorPasajeros) {
+                    Log.d("InicioScreen1", "🔍 Botón buscar pulsado")
+
+                    if (!errorFecha && !errorPasajeros && ida != null) {
+                        Log.d("InicioScreen2", "✅ Llamando a cargarVuelos()")
                         resultadosViewModel.cargarVuelos(
+                            origen = viewModel.ciudadOrigen.value,
                             destino = viewModel.ciudadDestino.value,
                             fechaIda = ida,
                             fechaVuelta = vuelta
@@ -118,6 +133,7 @@ fun InicioScreen(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

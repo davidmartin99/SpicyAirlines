@@ -35,7 +35,7 @@ class PerfilViewModel : ViewModel() {
 
                         // Si hay un vuelo de ida (el primer vuelo en la lista de "vuelos")
                         vuelosIds.getOrNull(0)?.let { vueloId ->
-                            db.collection("vuelos")
+                            db.collection("Vuelos")
                                 .document(vueloId)
                                 .get()
                                 .addOnSuccessListener { vueloDoc ->
@@ -54,7 +54,7 @@ class PerfilViewModel : ViewModel() {
 
                         // Si hay un vuelo de vuelta (el segundo vuelo en la lista de "vuelos")
                         vuelosIds.getOrNull(1)?.let { vueloIdVuelta ->
-                            db.collection("vuelos")
+                            db.collection("Vuelos")
                                 .document(vueloIdVuelta)
                                 .get()
                                 .addOnSuccessListener { vueloDocVuelta ->

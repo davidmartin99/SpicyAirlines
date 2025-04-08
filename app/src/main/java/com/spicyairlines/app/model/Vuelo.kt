@@ -15,3 +15,4 @@ data class Vuelo(
     val asientosPremium: Int = 0,
     val asientosBusiness: Int = 0
 )
+

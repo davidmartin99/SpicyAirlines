@@ -11,6 +11,8 @@ class InicioViewModel : ViewModel() {
     var fechaVuelta = mutableStateOf<Timestamp?>(null)
     var adultos = mutableStateOf(0)
     var ninos = mutableStateOf(0)
+    var soloIda = mutableStateOf(false)
+
 
     fun resetCampos() {
         ciudadOrigen.value = ""
