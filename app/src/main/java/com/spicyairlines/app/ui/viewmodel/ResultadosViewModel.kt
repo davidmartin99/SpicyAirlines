@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
+import com.spicyairlines.app.ui.utils.plusDays
 
 class ResultadosViewModel : ViewModel() {
 
@@ -40,29 +42,33 @@ class ResultadosViewModel : ViewModel() {
         fechaVuelta: Timestamp?
     ) {
         if (fechaIda == null) {
-            Log.e("ResultadosViewModel12", "Error: fechaIda es null")
+            Log.e("ResultadosViewModel12", "❌ fechaIda es null")
             return
         }
 
-        Log.d("ResultadosViewModel13", "🛫 Buscando vuelos: $origen → $destino desde ${fechaIda.toDate()}")
+        val fechaLimiteIda = fechaVuelta ?: fechaIda
+        val fechaMinimaVuelta = fechaIda.plusDays(2)
+
+        Log.d("ResultadosViewModel13", "🛫 Buscando vuelos: $origen → $destino entre ${fechaIda.toDate()} y ${fechaLimiteIda.toDate()}")
 
         viewModelScope.launch {
             db.collection("Vuelos")
                 .whereEqualTo("origen", origen)
                 .whereEqualTo("destino", destino)
                 .whereGreaterThanOrEqualTo("fechaSalida", fechaIda)
+                .whereLessThanOrEqualTo("fechaSalida", fechaLimiteIda)
                 .get()
                 .addOnSuccessListener { result ->
                     val vuelosIdaList = result.documents.mapNotNull { it.toObject(Vuelo::class.java) }
                     Log.d("ResultadosViewModel14", "✅ Vuelos de ida encontrados: ${vuelosIdaList.size}")
                     _vuelosIda.value = vuelosIdaList
 
-                    // Si hay fecha de vuelta válida, buscar vuelos de vuelta
                     if (fechaVuelta != null) {
                         db.collection("Vuelos")
                             .whereEqualTo("origen", destino)
                             .whereEqualTo("destino", origen)
-                            .whereGreaterThanOrEqualTo("fechaSalida", fechaVuelta)
+                            .whereGreaterThanOrEqualTo("fechaSalida", fechaMinimaVuelta)
+                            .whereLessThanOrEqualTo("fechaSalida", fechaVuelta)
                             .get()
                             .addOnSuccessListener { vueltaResult ->
                                 val vuelosVueltaList = vueltaResult.documents.mapNotNull { it.toObject(Vuelo::class.java) }
@@ -84,6 +90,8 @@ class ResultadosViewModel : ViewModel() {
                 }
         }
     }
+
+
 
     /**
      * Genera combinaciones de ida y vuelta válidas.

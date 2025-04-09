@@ -1,19 +1,19 @@
-package com.spicyairlines.app.components
+package com.spicyairlines.app.ui.utils
 
 import android.app.DatePickerDialog
 import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.*
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun DatePickerFirebase(
+fun DatePickerPasajero(
     label: String,
     initialDate: Date,
     onDateSelected: (Date) -> Unit

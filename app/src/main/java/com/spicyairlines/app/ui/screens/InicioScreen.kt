@@ -44,13 +44,15 @@ fun InicioScreen(
             )
 
             DatePickerFirebase(
-                label = "Fecha de ida",
-                initialDate = viewModel.fechaIda.value?.toDate() ?: Date(),
-                onDateSelected = {
-                    viewModel.fechaIda.value = Timestamp(it)
-                    errorFecha = false
-                }
-            )
+                soloIda = viewModel.soloIda.value,
+                fechaIda = viewModel.fechaIda.value,
+                fechaVuelta = viewModel.fechaVuelta.value
+            ) { ida, vuelta ->
+                viewModel.fechaIda.value = ida
+                viewModel.fechaVuelta.value = vuelta
+                errorFecha = false
+            }
+
 
             // Checkbox: solo ida
             Row(
@@ -63,17 +65,6 @@ fun InicioScreen(
                 Text("Solo ida")
             }
 
-            // Fecha de vuelta solo si NO está en modo solo ida
-            if (!viewModel.soloIda.value) {
-                DatePickerFirebase(
-                    label = "Fecha de vuelta",
-                    initialDate = viewModel.fechaVuelta.value?.toDate() ?: Date(),
-                    onDateSelected = {
-                        viewModel.fechaVuelta.value = Timestamp(it)
-                        errorFecha = false
-                    }
-                )
-            }
 
             if (errorFecha) {
                 Text(

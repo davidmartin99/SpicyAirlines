@@ -19,14 +19,15 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun ResultadosScreen(
     sharedViewModel: SharedViewModel,
-    viewModel: ResultadosViewModel = viewModel(),
+    resultadosViewModel: ResultadosViewModel,
     onSeleccionarVuelo: () -> Unit,
     onBack: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
-    val vuelosIda by viewModel.vuelosIda.collectAsState()
-    val vuelosVuelta by viewModel.vuelosVuelta.collectAsState()
-    val combinacionesValidas by viewModel.combinacionesValidas.collectAsState()
+    val vuelosIda by resultadosViewModel.vuelosIda.collectAsState()
+    val vuelosVuelta by resultadosViewModel.vuelosVuelta.collectAsState()
+    val combinacionesValidas by resultadosViewModel.combinacionesValidas.collectAsState()
+
 
     BasePantalla(
         onBack = onBack,

@@ -9,9 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spicyairlines.app.components.BasePantalla
-import com.spicyairlines.app.components.DatePickerFirebase
 import com.spicyairlines.app.viewmodel.DatosPasajerosViewModel
 import com.spicyairlines.app.model.Pasajero // ✅ Este es el único cambio necesario
+import com.spicyairlines.app.ui.utils.DatePickerPasajero
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 
 @Composable
@@ -57,12 +57,11 @@ fun DatosPasajerosScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                DatePickerFirebase(
+                DatePickerPasajero(
                     label = "Fecha de nacimiento",
                     initialDate = pasajero.fechaNacimiento.toDate(), // ✅ Ya no necesitas el operador `?.`
                     onDateSelected = { viewModel.actualizarFechaNacimiento(index, it) }
                 )
-
 
 
                 OutlinedTextField(

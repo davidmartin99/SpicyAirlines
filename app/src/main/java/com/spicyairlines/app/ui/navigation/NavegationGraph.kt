@@ -82,6 +82,7 @@ fun NavigationGraph(
         composable(Screen.Resultados.route) {
             ResultadosScreen(
                 sharedViewModel = sharedViewModel, // ✅ también importante
+                resultadosViewModel = resultadosViewModel,
                 onSeleccionarVuelo = {
                     navController.navigate(Screen.SeleccionClase.route)
                 },
