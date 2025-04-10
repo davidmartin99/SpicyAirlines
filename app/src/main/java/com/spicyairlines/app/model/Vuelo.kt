@@ -5,7 +5,9 @@ import com.google.firebase.Timestamp
 data class Vuelo(
     val id: String = "",
     val origen: String = "",
+    val aeropuertoOrigen: String = "",
     val destino: String = "",
+    val aeropuertoDestino: String = "",
     val fechaSalida: Timestamp = Timestamp.now(),
     val fechaLlegada: Timestamp = Timestamp.now(),
     val duracion: String = "",

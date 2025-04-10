@@ -14,7 +14,7 @@ class SharedViewModel : ViewModel() {
     private val _vueloVueltaSeleccionado = MutableStateFlow<Vuelo?>(null)
     val vueloVueltaSeleccionado: StateFlow<Vuelo?> = _vueloVueltaSeleccionado
 
-    private val _claseSeleccionada = MutableStateFlow("")
+    private val _claseSeleccionada = MutableStateFlow("Turista")
     val claseSeleccionada: StateFlow<String> = _claseSeleccionada
 
     private val _precioTotal = MutableStateFlow(0.0)

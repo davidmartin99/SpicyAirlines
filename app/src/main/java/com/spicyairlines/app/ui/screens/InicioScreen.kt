@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spicyairlines.app.components.BasePantalla
@@ -13,12 +14,14 @@ import com.spicyairlines.app.components.DatePickerFirebase
 import com.spicyairlines.app.viewmodel.InicioViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
 import com.google.firebase.Timestamp
+import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import java.util.*
 
 @Composable
 fun InicioScreen(
     viewModel: InicioViewModel = viewModel(),
     resultadosViewModel: ResultadosViewModel = viewModel(),
+    sharedViewModel: SharedViewModel = viewModel(),
     onBuscarClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
@@ -53,66 +56,36 @@ fun InicioScreen(
                 errorFecha = false
             }
 
-
-            // Checkbox: solo ida
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = viewModel.soloIda.value,
-                    onCheckedChange = { viewModel.soloIda.value = it }
-                )
-                Text("Solo ida")
-            }
-
-
-            if (errorFecha) {
-                Text(
-                    text = "La fecha de vuelta no puede ser anterior a la de ida.",
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-
-            if (errorPasajeros) {
-                Text(
-                    text = "Debes seleccionar al menos 1 pasajero.",
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-
-            OutlinedTextField(
-                value = viewModel.adultos.value.toString(),
-                onValueChange = { viewModel.adultos.value = it.toIntOrNull() ?: 0 },
-                label = { Text("Nº de adultos") },
-                singleLine = true
-            )
-
-            OutlinedTextField(
-                value = viewModel.ninos.value.toString(),
-                onValueChange = { viewModel.ninos.value = it.toIntOrNull() ?: 0 },
-                label = { Text("Nº de niños menores de 3") },
-                singleLine = true
-            )
+            CheckboxSoloIda(viewModel)
+            SelectorViajerosClase(viewModel.adultos, viewModel.ninos, viewModel.clase)
+            MostrarErrores(errorFecha, errorPasajeros)
 
             Button(
                 onClick = {
                     val ida = viewModel.fechaIda.value
                     val vuelta = if (viewModel.soloIda.value) null else viewModel.fechaVuelta.value
-                    val totalPasajeros = viewModel.adultos.value + viewModel.ninos.value
+                    val adultos = viewModel.adultos.value
+                    val ninos = viewModel.ninos.value
+                    val totalPasajeros = adultos + ninos
+                    val claseSeleccionada = viewModel.clase.value
 
                     errorFecha = ida != null && vuelta != null && vuelta < ida
                     errorPasajeros = totalPasajeros == 0
 
-                    Log.d("InicioScreen1", "🔍 Botón buscar pulsado")
-
                     if (!errorFecha && !errorPasajeros && ida != null) {
-                        Log.d("InicioScreen2", "✅ Llamando a cargarVuelos()")
                         resultadosViewModel.cargarVuelos(
                             origen = viewModel.ciudadOrigen.value,
                             destino = viewModel.ciudadDestino.value,
                             fechaIda = ida,
-                            fechaVuelta = vuelta
+                            fechaVuelta = vuelta,
+                            claseSeleccionada = claseSeleccionada,
+                            totalPasajeros = totalPasajeros
                         )
+
+                        sharedViewModel.seleccionarClase(claseSeleccionada)
+                        sharedViewModel.establecerAdultos(adultos)
+                        sharedViewModel.establecerNinos(ninos)
+
                         onBuscarClick()
                     }
                 },
@@ -121,10 +94,89 @@ fun InicioScreen(
             ) {
                 Text("Buscar vuelos")
             }
+
         }
     }
 }
 
+@Composable
+fun CheckboxSoloIda(viewModel: InicioViewModel) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(
+            checked = viewModel.soloIda.value,
+            onCheckedChange = { viewModel.soloIda.value = it }
+        )
+        Text("Solo ida")
+    }
+}
+
+@Composable
+fun MostrarErrores(errorFecha: Boolean, errorPasajeros: Boolean) {
+    if (errorFecha) {
+        Text(
+            text = "La fecha de vuelta no puede ser anterior a la de ida.",
+            color = MaterialTheme.colorScheme.error
+        )
+    }
+    if (errorPasajeros) {
+        Text(
+            text = "Debes seleccionar al menos 1 pasajero.",
+            color = MaterialTheme.colorScheme.error
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectorViajerosClase(
+    adultos: MutableState<Int>,
+    ninos: MutableState<Int>,
+    clase: MutableState<String>
+) {
+    var expandedClase by remember { mutableStateOf(false) }
+    val clases = listOf("Turista", "Premium", "Business")
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Clase")
+        ExposedDropdownMenuBox(expanded = expandedClase, onExpandedChange = { expandedClase = !expandedClase }) {
+            TextField(
+                value = clase.value,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Clase") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expandedClase) },
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = expandedClase,
+                onDismissRequest = { expandedClase = false }
+            ) {
+                clases.forEach {
+                    DropdownMenuItem(text = { Text(it) }, onClick = {
+                        clase.value = it
+                        expandedClase = false
+                    })
+                }
+            }
+        }
+
+        SelectorContador("Adultos", adultos, minimo = 1)
+        SelectorContador("Niños", ninos, minimo = 0)
+    }
+}
+
+@Composable
+fun SelectorContador(label: String, contador: MutableState<Int>, minimo: Int) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, modifier = Modifier.weight(1f))
+        IconButton(onClick = { if (contador.value > minimo) contador.value-- }) { Text("-") }
+        Text(contador.value.toString())
+        IconButton(onClick = { contador.value++ }) { Text("+") }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -171,10 +223,10 @@ fun DropdownMenuOrigen(
 fun DropdownMenuDestino(
     selected: String,
     onSeleccion: (String) -> Unit,
-    ciudadOrigen: String // Recibimos la ciudad de origen
+    ciudadOrigen: String
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val ciudades = listOf("Madrid", "Chongqing", "Chengdu").filter { it != ciudadOrigen } // Filtramos la ciudad de origen
+    val ciudades = listOf("Madrid", "Chongqing", "Chengdu").filter { it != ciudadOrigen }
 
     ExposedDropdownMenuBox(
         expanded = expanded,

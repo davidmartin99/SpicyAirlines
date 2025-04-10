@@ -2,6 +2,7 @@ package com.spicyairlines.app.components
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,15 +43,13 @@ fun DatePickerFirebase(
                 }
             } else {
                 showDatePicker(context) { ida ->
-                    showDatePicker(context, minDate = ida.time + (2 * 86400000)) { vuelta ->
-                        val diff = vuelta.time - ida.time
-                        val dias = diff / (1000 * 60 * 60 * 24)
-
-                        if (dias in 2..30) {
+                    showDatePicker(context, minDate = ida.time + 2 * 86400000) { vuelta ->
+                        val dias = (vuelta.time - ida.time) / (1000 * 60 * 60 * 24)
+                        if (dias in 2..60) {
                             textoBoton = "Ida: ${dateFormat.format(ida)} - Vuelta: ${dateFormat.format(vuelta)}"
                             onFechasSeleccionadas(Timestamp(ida), Timestamp(vuelta))
                         } else {
-                            textoBoton = "❌ Máx. 30 días, mín. 2 días"
+                            Toast.makeText(context, "❌ Rango permitido: entre 2 y 60 días", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -60,7 +59,8 @@ fun DatePickerFirebase(
     ) {
         Icon(
             painter = painterResource(id = R.drawable.calendar),
-            contentDescription = "Calendario")
+            contentDescription = "Calendario"
+        )
         Spacer(modifier = Modifier.width(8.dp))
         Text(textoBoton)
     }
@@ -82,8 +82,6 @@ private fun showDatePicker(
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH)
     )
-
     minDate?.let { dialog.datePicker.minDate = it }
-
     dialog.show()
 }

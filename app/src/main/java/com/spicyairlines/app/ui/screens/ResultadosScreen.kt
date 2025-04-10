@@ -1,5 +1,7 @@
 package com.spicyairlines.app.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -11,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.Timestamp
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.model.Vuelo
+import com.spicyairlines.app.ui.utils.HoraUTC.formatearFechaHoraLocal
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +30,7 @@ fun ResultadosScreen(
     val vuelosIda by resultadosViewModel.vuelosIda.collectAsState()
     val vuelosVuelta by resultadosViewModel.vuelosVuelta.collectAsState()
     val combinacionesValidas by resultadosViewModel.combinacionesValidas.collectAsState()
-
+    val cargaCompletada by resultadosViewModel.cargaCompletada.collectAsState()
 
     BasePantalla(
         onBack = onBack,
@@ -42,8 +45,16 @@ fun ResultadosScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             when {
-                vuelosIda.isEmpty() -> {
+                !cargaCompletada -> {
+                    CircularProgressIndicator()
+                }
+
+                vuelosIda.isEmpty() && vuelosVuelta.isEmpty() -> {
                     Text("❌ No se encontraron vuelos disponibles.")
+                }
+
+                vuelosVuelta.isNotEmpty() && combinacionesValidas.isEmpty() -> {
+                    Text("❌ No se encontraron combinaciones válidas.")
                 }
 
                 vuelosVuelta.isEmpty() -> {
@@ -54,10 +65,6 @@ fun ResultadosScreen(
                             onSeleccionarVuelo()
                         }
                     }
-                }
-
-                combinacionesValidas.isEmpty() -> {
-                    Text("❌ No se encontraron combinaciones válidas.")
                 }
 
                 else -> {
@@ -74,6 +81,7 @@ fun ResultadosScreen(
     }
 }
 
+
 @Composable
 fun VueloCard(vuelo: Vuelo, onClick: () -> Unit) {
     Card(
@@ -86,9 +94,9 @@ fun VueloCard(vuelo: Vuelo, onClick: () -> Unit) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("✈️ Vuelo disponible", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
-            Text("${vuelo.origen} → ${vuelo.destino}", style = MaterialTheme.typography.bodyLarge)
-            Text("Salida: ${vuelo.fechaSalida.toDate()}", style = MaterialTheme.typography.bodySmall)
-            Text("Llegada: ${vuelo.fechaLlegada.toDate()}", style = MaterialTheme.typography.bodySmall)
+            Text("${vuelo.origen} (${vuelo.aeropuertoOrigen}) → ${vuelo.destino} (${vuelo.aeropuertoDestino})", style = MaterialTheme.typography.bodyLarge)
+            Text("Salida: ${vuelo.origen} ${formatearFechaHoraLocal(vuelo.fechaSalida, vuelo.origen)}", style = MaterialTheme.typography.bodySmall)
+            Text("Llegada: ${vuelo.destino} ${formatearFechaHoraLocal(vuelo.fechaLlegada, vuelo.destino)}", style = MaterialTheme.typography.bodySmall)
             Text("Duración: ${vuelo.duracion}", style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -111,17 +119,17 @@ fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, onClick: () -> Unit) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("✈️ Vuelo de ida", style = MaterialTheme.typography.titleMedium)
-            Text("${ida.origen} → ${ida.destino}", style = MaterialTheme.typography.bodyLarge)
-            Text("Salida: ${ida.fechaSalida.toDate()}", style = MaterialTheme.typography.bodySmall)
-            Text("Llegada: ${ida.fechaLlegada.toDate()}", style = MaterialTheme.typography.bodySmall)
+            Text("${ida.origen} (${ida.aeropuertoOrigen}) → ${ida.destino} (${ida.aeropuertoDestino})", style = MaterialTheme.typography.bodyLarge)
+            Text("Salida: ${ida.origen} ${formatearFechaHoraLocal(ida.fechaSalida, ida.origen)}", style = MaterialTheme.typography.bodySmall)
+            Text("Llegada: ${ida.destino} ${formatearFechaHoraLocal(ida.fechaLlegada, ida.destino)}", style = MaterialTheme.typography.bodySmall)
             Text("Duración: ${ida.duracion}", style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Text("🔁 Vuelo de vuelta", style = MaterialTheme.typography.titleMedium)
-            Text("${vuelta.origen} → ${vuelta.destino}", style = MaterialTheme.typography.bodyLarge)
-            Text("Salida: ${vuelta.fechaSalida.toDate()}", style = MaterialTheme.typography.bodySmall)
-            Text("Llegada: ${vuelta.fechaLlegada.toDate()}", style = MaterialTheme.typography.bodySmall)
+            Text("${vuelta.origen} (${vuelta.aeropuertoOrigen}) → ${vuelta.destino} (${vuelta.aeropuertoDestino})", style = MaterialTheme.typography.bodyLarge)
+            Text("Salida: ${vuelta.origen} ${formatearFechaHoraLocal(vuelta.fechaSalida, vuelta.origen)}", style = MaterialTheme.typography.bodySmall)
+            Text("Llegada: ${vuelta.destino} ${formatearFechaHoraLocal(vuelta.fechaLlegada, vuelta.destino)}", style = MaterialTheme.typography.bodySmall)
             Text("Duración: ${vuelta.duracion}", style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -140,7 +148,9 @@ fun ResultadosScreenSimplePreview() {
     val vueloIda = Vuelo(
         id = "1",
         origen = "Madrid",
+        aeropuertoOrigen = "MAD",
         destino = "Chongqing",
+        aeropuertoDestino = "CKG",
         fechaSalida = Timestamp.now(),
         fechaLlegada = Timestamp.now(),
         duracion = "11h 15min",
@@ -154,7 +164,9 @@ fun ResultadosScreenSimplePreview() {
     val vueloVuelta = Vuelo(
         id = "2",
         origen = "Chongqing",
+        aeropuertoOrigen = "CKG",
         destino = "Madrid",
+        aeropuertoDestino = "MAD",
         fechaSalida = Timestamp.now(),
         fechaLlegada = Timestamp.now(),
         duracion = "12h 00min",

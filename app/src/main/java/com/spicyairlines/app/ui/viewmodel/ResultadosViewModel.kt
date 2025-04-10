@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.Date
 import com.spicyairlines.app.ui.utils.plusDays
 
 class ResultadosViewModel : ViewModel() {
@@ -26,32 +25,23 @@ class ResultadosViewModel : ViewModel() {
     private val _combinacionesValidas = MutableStateFlow<List<Pair<Vuelo, Vuelo>>>(emptyList())
     val combinacionesValidas: StateFlow<List<Pair<Vuelo, Vuelo>>> = _combinacionesValidas.asStateFlow()
 
-    /**
-     * Carga vuelos desde Firebase según los filtros de búsqueda.
-     * Si se proporciona una fecha de vuelta, también busca vuelos de regreso.
-     *
-     * @param origen Ciudad de origen (ej: "Madrid")
-     * @param destino Ciudad de destino (ej: "Chongqing")
-     * @param fechaIda Fecha mínima de salida del vuelo de ida
-     * @param fechaVuelta Fecha mínima de salida del vuelo de vuelta (opcional)
-     */
+    private val _cargaCompletada = MutableStateFlow(false)
+    val cargaCompletada: StateFlow<Boolean> = _cargaCompletada.asStateFlow()
+
     fun cargarVuelos(
         origen: String,
         destino: String,
-        fechaIda: Timestamp?,
-        fechaVuelta: Timestamp?
+        fechaIda: Timestamp,
+        fechaVuelta: Timestamp?,
+        claseSeleccionada: String,
+        totalPasajeros: Int
     ) {
-        if (fechaIda == null) {
-            Log.e("ResultadosViewModel12", "❌ fechaIda es null")
-            return
-        }
-
         val fechaLimiteIda = fechaVuelta ?: fechaIda
         val fechaMinimaVuelta = fechaIda.plusDays(2)
 
-        Log.d("ResultadosViewModel13", "🛫 Buscando vuelos: $origen → $destino entre ${fechaIda.toDate()} y ${fechaLimiteIda.toDate()}")
-
         viewModelScope.launch {
+            _cargaCompletada.value = false
+
             db.collection("Vuelos")
                 .whereEqualTo("origen", origen)
                 .whereEqualTo("destino", destino)
@@ -60,7 +50,9 @@ class ResultadosViewModel : ViewModel() {
                 .get()
                 .addOnSuccessListener { result ->
                     val vuelosIdaList = result.documents.mapNotNull { it.toObject(Vuelo::class.java) }
-                    Log.d("ResultadosViewModel14", "✅ Vuelos de ida encontrados: ${vuelosIdaList.size}")
+                        .filter { vueloTieneAsientos(it, claseSeleccionada, totalPasajeros) }
+
+                    Log.d("ResultadosViewModel14", "✅ Vuelos de ida filtrados: ${vuelosIdaList.size}")
                     _vuelosIda.value = vuelosIdaList
 
                     if (fechaVuelta != null) {
@@ -72,42 +64,53 @@ class ResultadosViewModel : ViewModel() {
                             .get()
                             .addOnSuccessListener { vueltaResult ->
                                 val vuelosVueltaList = vueltaResult.documents.mapNotNull { it.toObject(Vuelo::class.java) }
-                                Log.d("ResultadosViewModel15", "🔁 Vuelos de vuelta encontrados: ${vuelosVueltaList.size}")
+                                    .filter { vueloTieneAsientos(it, claseSeleccionada, totalPasajeros) }
+
+                                Log.d("ResultadosViewModel15", "🔁 Vuelos de vuelta filtrados: ${vuelosVueltaList.size}")
                                 _vuelosVuelta.value = vuelosVueltaList
 
-                                generarCombinacionesValidas()
+                                generarCombinacionesValidas(claseSeleccionada, totalPasajeros)
+                                _cargaCompletada.value = true
                             }
                             .addOnFailureListener { e ->
                                 Log.e("ResultadosViewModel16", "❌ Error al cargar vuelos de vuelta", e)
+                                _cargaCompletada.value = true
                             }
                     } else {
                         _vuelosVuelta.value = emptyList()
                         _combinacionesValidas.value = emptyList()
+                        _cargaCompletada.value = true
                     }
                 }
                 .addOnFailureListener { e ->
                     Log.e("ResultadosViewModel17", "❌ Error al cargar vuelos de ida", e)
+                    _cargaCompletada.value = true
                 }
         }
     }
 
-
-
-    /**
-     * Genera combinaciones de ida y vuelta válidas.
-     * Solo combina vuelos si la salida del vuelo de vuelta es posterior a la llegada del vuelo de ida.
-     */
-    private fun generarCombinacionesValidas() {
+    private fun generarCombinacionesValidas(clase: String, pasajeros: Int) {
         val idaList = _vuelosIda.value
         val vueltaList = _vuelosVuelta.value
 
         val combinaciones = idaList.flatMap { ida ->
             vueltaList.filter { vuelta ->
-                vuelta.fechaSalida.toDate().after(ida.fechaLlegada.toDate())
+                vuelta.fechaSalida.toDate().after(ida.fechaLlegada.toDate()) &&
+                        vueloTieneAsientos(ida, clase, pasajeros) &&
+                        vueloTieneAsientos(vuelta, clase, pasajeros)
             }.map { vuelta -> ida to vuelta }
         }
 
         Log.d("ResultadosViewModel18", "🔗 Combinaciones válidas generadas: ${combinaciones.size}")
         _combinacionesValidas.value = combinaciones
+    }
+
+    private fun vueloTieneAsientos(vuelo: Vuelo, clase: String, pasajeros: Int): Boolean {
+        return when (clase) {
+            "Turista" -> vuelo.asientosTurista >= pasajeros
+            "Premium" -> vuelo.asientosPremium >= pasajeros
+            "Business" -> vuelo.asientosBusiness >= pasajeros
+            else -> false
+        }
     }
 }
