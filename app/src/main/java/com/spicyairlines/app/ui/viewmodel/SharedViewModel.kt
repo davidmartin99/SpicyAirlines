@@ -32,6 +32,10 @@ class SharedViewModel : ViewModel() {
     val totalPasajeros: Int
         get() = _adultos.value + _ninos.value
 
+    private val _precioTotalReserva = MutableStateFlow(0.0)
+    val precioTotalReserva: StateFlow<Double> = _precioTotalReserva
+
+
     fun seleccionarVuelo(vuelo: Vuelo) {
         _vueloSeleccionado.value = vuelo
     }
@@ -69,4 +73,24 @@ class SharedViewModel : ViewModel() {
         _adultos.value = 0
         _ninos.value = 0
     }
+
+    fun calcularPrecioBillete(vueloIda: Vuelo, vueloVuelta: Vuelo? = null) {
+        val clase = _claseSeleccionada.value
+        val multiplicador = when (clase) {
+            "Premium" -> 1.5
+            "Business" -> 2.0
+            else -> 1.0
+        }
+
+        val precioBase = vueloIda.precioBase + (vueloVuelta?.precioBase ?: 0)
+        val precioUnitario = precioBase * multiplicador
+
+        _precioTotal.value = precioUnitario
+    }
+
+    fun actualizarPrecioTotalReserva(precio: Double) {
+        _precioTotalReserva.value = precio
+    }
+
+
 }

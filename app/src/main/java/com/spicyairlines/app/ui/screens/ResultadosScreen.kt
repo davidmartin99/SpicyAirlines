@@ -59,9 +59,10 @@ fun ResultadosScreen(
 
                 vuelosVuelta.isEmpty() -> {
                     vuelosIda.forEach { vuelo ->
-                        VueloCard(vuelo = vuelo) {
+                        VueloCard(vuelo = vuelo, sharedViewModel = sharedViewModel) {
                             sharedViewModel.seleccionarVuelo(vuelo)
                             sharedViewModel.seleccionarVueloVuelta(null)
+                            sharedViewModel.calcularPrecioBillete(vuelo) // Guarda el precio por billete
                             onSeleccionarVuelo()
                         }
                     }
@@ -69,9 +70,10 @@ fun ResultadosScreen(
 
                 else -> {
                     combinacionesValidas.forEach { (ida, vuelta) ->
-                        VueloCombinadoCard(ida, vuelta) {
+                        VueloCombinadoCard(ida, vuelta, sharedViewModel = sharedViewModel) {
                             sharedViewModel.seleccionarVuelo(ida)
                             sharedViewModel.seleccionarVueloVuelta(vuelta)
+                            sharedViewModel.calcularPrecioBillete(ida, vuelta) // Guarda el precio por billete
                             onSeleccionarVuelo()
                         }
                     }
@@ -83,7 +85,15 @@ fun ResultadosScreen(
 
 
 @Composable
-fun VueloCard(vuelo: Vuelo, onClick: () -> Unit) {
+fun VueloCard(vuelo: Vuelo, sharedViewModel: SharedViewModel, onClick: () -> Unit) {
+    val clase by sharedViewModel.claseSeleccionada.collectAsState()
+    val multiplicador = when (clase) {
+        "Premium" -> 1.5
+        "Business" -> 2.0
+        else -> 1.0
+    }
+    val precioPorPasajero = vuelo.precioBase * multiplicador
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,21 +105,31 @@ fun VueloCard(vuelo: Vuelo, onClick: () -> Unit) {
             Text("✈️ Vuelo disponible", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
             Text("${vuelo.origen} (${vuelo.aeropuertoOrigen}) → ${vuelo.destino} (${vuelo.aeropuertoDestino})", style = MaterialTheme.typography.bodyLarge)
-            Text("Salida: ${vuelo.origen} ${formatearFechaHoraLocal(vuelo.fechaSalida, vuelo.origen)}", style = MaterialTheme.typography.bodySmall)
-            Text("Llegada: ${vuelo.destino} ${formatearFechaHoraLocal(vuelo.fechaLlegada, vuelo.destino)}", style = MaterialTheme.typography.bodySmall)
+            Text("Salida: ${formatearFechaHoraLocal(vuelo.fechaSalida, vuelo.origen)}", style = MaterialTheme.typography.bodySmall)
+            Text("Llegada: ${formatearFechaHoraLocal(vuelo.fechaLlegada, vuelo.destino)}", style = MaterialTheme.typography.bodySmall)
             Text("Duración: ${vuelo.duracion}", style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.height(12.dp))
             Divider()
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text("💰 Precio desde: ${vuelo.precioBase} €", style = MaterialTheme.typography.titleMedium)
+            Text("💰 Precio por billete: $precioPorPasajero €", style = MaterialTheme.typography.titleMedium)
         }
     }
 }
 
+
+
 @Composable
-fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, onClick: () -> Unit) {
+fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, sharedViewModel: SharedViewModel, onClick: () -> Unit) {
+    val clase by sharedViewModel.claseSeleccionada.collectAsState()
+    val multiplicador = when (clase) {
+        "Premium" -> 1.5
+        "Business" -> 2.0
+        else -> 1.0
+    }
+    val precioPorPasajero = (ida.precioBase + vuelta.precioBase) * multiplicador
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -120,70 +140,26 @@ fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, onClick: () -> Unit) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("✈️ Vuelo de ida", style = MaterialTheme.typography.titleMedium)
             Text("${ida.origen} (${ida.aeropuertoOrigen}) → ${ida.destino} (${ida.aeropuertoDestino})", style = MaterialTheme.typography.bodyLarge)
-            Text("Salida: ${ida.origen} ${formatearFechaHoraLocal(ida.fechaSalida, ida.origen)}", style = MaterialTheme.typography.bodySmall)
-            Text("Llegada: ${ida.destino} ${formatearFechaHoraLocal(ida.fechaLlegada, ida.destino)}", style = MaterialTheme.typography.bodySmall)
-            Text("Duración: ${ida.duracion}", style = MaterialTheme.typography.bodySmall)
+            Text("Salida: ${formatearFechaHoraLocal(ida.fechaSalida, ida.origen)}", style = MaterialTheme.typography.bodySmall)
+            Text("Llegada: ${formatearFechaHoraLocal(ida.fechaLlegada, ida.destino)}", style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Text("🔁 Vuelo de vuelta", style = MaterialTheme.typography.titleMedium)
             Text("${vuelta.origen} (${vuelta.aeropuertoOrigen}) → ${vuelta.destino} (${vuelta.aeropuertoDestino})", style = MaterialTheme.typography.bodyLarge)
-            Text("Salida: ${vuelta.origen} ${formatearFechaHoraLocal(vuelta.fechaSalida, vuelta.origen)}", style = MaterialTheme.typography.bodySmall)
-            Text("Llegada: ${vuelta.destino} ${formatearFechaHoraLocal(vuelta.fechaLlegada, vuelta.destino)}", style = MaterialTheme.typography.bodySmall)
-            Text("Duración: ${vuelta.duracion}", style = MaterialTheme.typography.bodySmall)
+            Text("Salida: ${formatearFechaHoraLocal(vuelta.fechaSalida, vuelta.origen)}", style = MaterialTheme.typography.bodySmall)
+            Text("Llegada: ${formatearFechaHoraLocal(vuelta.fechaLlegada, vuelta.destino)}", style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.height(12.dp))
             Divider()
             Spacer(modifier = Modifier.height(8.dp))
 
-            val precioTotal = ida.precioBase + vuelta.precioBase
-            Text("💰 Precio total: $precioTotal €", style = MaterialTheme.typography.titleMedium)
+            Text("💰 Precio por billete: $precioPorPasajero €", style = MaterialTheme.typography.titleMedium)
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ResultadosScreenSimplePreview() {
-    val vueloIda = Vuelo(
-        id = "1",
-        origen = "Madrid",
-        aeropuertoOrigen = "MAD",
-        destino = "Chongqing",
-        aeropuertoDestino = "CKG",
-        fechaSalida = Timestamp.now(),
-        fechaLlegada = Timestamp.now(),
-        duracion = "11h 15min",
-        temporada = "alta",
-        precioBase = 320,
-        asientosTurista = 50,
-        asientosPremium = 20,
-        asientosBusiness = 10
-    )
 
-    val vueloVuelta = Vuelo(
-        id = "2",
-        origen = "Chongqing",
-        aeropuertoOrigen = "CKG",
-        destino = "Madrid",
-        aeropuertoDestino = "MAD",
-        fechaSalida = Timestamp.now(),
-        fechaLlegada = Timestamp.now(),
-        duracion = "12h 00min",
-        temporada = "alta",
-        precioBase = 340,
-        asientosTurista = 45,
-        asientosPremium = 18,
-        asientosBusiness = 8
-    )
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text("🛫 Ejemplo vuelo solo ida", style = MaterialTheme.typography.titleMedium)
-        VueloCard(vuelo = vueloIda, onClick = {})
 
-        Spacer(modifier = Modifier.height(24.dp))
 
-        Text("🔁 Ejemplo vuelo ida + vuelta", style = MaterialTheme.typography.titleMedium)
-        VueloCombinadoCard(ida = vueloIda, vuelta = vueloVuelta, onClick = {})
-    }
-}

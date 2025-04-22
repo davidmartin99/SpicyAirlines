@@ -76,6 +76,7 @@ private fun showDatePicker(
         context,
         { _, year, month, dayOfMonth ->
             calendar.set(year, month, dayOfMonth, 0, 0, 0)
+            calendar.set(Calendar.MILLISECOND, 0) //
             onDateSelected(calendar.time)
         },
         calendar.get(Calendar.YEAR),

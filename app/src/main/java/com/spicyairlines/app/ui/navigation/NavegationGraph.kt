@@ -7,7 +7,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.spicyairlines.app.screens.*
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
-import com.spicyairlines.app.viewmodel.PerfilViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
 
 sealed class Screen(val route: String) {
@@ -16,7 +15,7 @@ sealed class Screen(val route: String) {
     object Register : Screen("register")
     object Inicio : Screen("inicio")
     object Resultados : Screen("resultados")
-    object SeleccionClase : Screen("seleccionClase")
+    object VueloSeleccionado : Screen("vueloSeleccionado")
     object DatosPasajeros : Screen("datosPasajeros")
     object ConfirmacionReserva : Screen("confirmacionReserva")
     object PagoCompletado : Screen("pagoCompletado")
@@ -68,6 +67,7 @@ fun NavigationGraph(
 
         composable(Screen.Inicio.route) {
             InicioScreen(
+                sharedViewModel = sharedViewModel,
                 resultadosViewModel = resultadosViewModel,
                 onBuscarClick = {
                     navController.navigate(Screen.Resultados.route)
@@ -84,7 +84,7 @@ fun NavigationGraph(
                 sharedViewModel = sharedViewModel, // ✅ también importante
                 resultadosViewModel = resultadosViewModel,
                 onSeleccionarVuelo = {
-                    navController.navigate(Screen.SeleccionClase.route)
+                    navController.navigate(Screen.VueloSeleccionado.route)
                 },
                 onBack = { navController.popBackStack() },
                 onPerfilClick = { navController.navigate(Screen.Perfil.route) }
@@ -92,8 +92,8 @@ fun NavigationGraph(
         }
 
 
-        composable(Screen.SeleccionClase.route) {
-            SeleccionClaseScreen(
+        composable(Screen.VueloSeleccionado.route) {
+            VueloSeleccionadoScreen(
                 sharedViewModel = sharedViewModel,
                 onContinuarClick = {
                     navController.navigate(Screen.DatosPasajeros.route)

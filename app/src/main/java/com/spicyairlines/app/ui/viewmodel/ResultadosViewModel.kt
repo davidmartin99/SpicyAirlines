@@ -36,7 +36,7 @@ class ResultadosViewModel : ViewModel() {
         claseSeleccionada: String,
         totalPasajeros: Int
     ) {
-        val fechaLimiteIda = fechaVuelta ?: fechaIda
+        val fechaLimiteIda = fechaVuelta ?: fechaIda.plusDays(1)
         val fechaMinimaVuelta = fechaIda.plusDays(2)
 
         viewModelScope.launch {
