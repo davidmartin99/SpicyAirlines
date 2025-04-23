@@ -93,4 +93,11 @@ class SharedViewModel : ViewModel() {
     }
 
 
+    private val _reservaId = MutableStateFlow("")
+    val reservaId: StateFlow<String> = _reservaId
+
+    fun setReservaId(id: String) {
+        _reservaId.value = id
+    }
+
 }

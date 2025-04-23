@@ -49,8 +49,11 @@ class ResultadosViewModel : ViewModel() {
                 .whereLessThanOrEqualTo("fechaSalida", fechaLimiteIda)
                 .get()
                 .addOnSuccessListener { result ->
-                    val vuelosIdaList = result.documents.mapNotNull { it.toObject(Vuelo::class.java) }
-                        .filter { vueloTieneAsientos(it, claseSeleccionada, totalPasajeros) }
+                    val vuelosIdaList = result.documents.mapNotNull { doc ->
+                        doc.toObject(Vuelo::class.java)?.copy(id = doc.id)
+                    }.filter {
+                        vueloTieneAsientos(it, claseSeleccionada, totalPasajeros)
+                    }
 
                     Log.d("ResultadosViewModel14", "✅ Vuelos de ida filtrados: ${vuelosIdaList.size}")
                     _vuelosIda.value = vuelosIdaList
@@ -63,8 +66,11 @@ class ResultadosViewModel : ViewModel() {
                             .whereLessThanOrEqualTo("fechaSalida", fechaVuelta)
                             .get()
                             .addOnSuccessListener { vueltaResult ->
-                                val vuelosVueltaList = vueltaResult.documents.mapNotNull { it.toObject(Vuelo::class.java) }
-                                    .filter { vueloTieneAsientos(it, claseSeleccionada, totalPasajeros) }
+                                val vuelosVueltaList = vueltaResult.documents.mapNotNull { doc ->
+                                    doc.toObject(Vuelo::class.java)?.copy(id = doc.id)
+                                }.filter {
+                                    vueloTieneAsientos(it, claseSeleccionada, totalPasajeros)
+                                }
 
                                 Log.d("ResultadosViewModel15", "🔁 Vuelos de vuelta filtrados: ${vuelosVueltaList.size}")
                                 _vuelosVuelta.value = vuelosVueltaList

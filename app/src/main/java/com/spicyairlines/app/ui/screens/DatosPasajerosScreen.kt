@@ -13,6 +13,8 @@ import com.spicyairlines.app.viewmodel.DatosPasajerosViewModel
 import com.spicyairlines.app.model.Pasajero // ✅ Este es el único cambio necesario
 import com.spicyairlines.app.ui.utils.DatePickerPasajero
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
+import com.spicyairlines.app.utils.edadesSonValidas
+import java.util.Calendar
 
 @Composable
 fun DatosPasajerosScreen(
@@ -29,6 +31,9 @@ fun DatosPasajerosScreen(
     }
 
     val pasajeros by viewModel.pasajeros.collectAsState()
+
+    var mostrarErrorCamposVacios by remember { mutableStateOf(false) }
+    var mostrarErrorEdad by remember { mutableStateOf(false) }
 
     BasePantalla(
         onBack = onBack,
@@ -82,11 +87,59 @@ fun DatosPasajerosScreen(
             }
 
             Button(
-                onClick = onContinuarClick,
+                onClick = {
+                    val hayCamposVacios = pasajeros.any {
+                        it.nombre.isBlank() || it.apellidos.isBlank() ||
+                                it.numeroPasaporte.isBlank() || it.telefono.isBlank()
+                    }
+
+                    val edadesCorrectas = edadesSonValidas(
+                        pasajeros = pasajeros,
+                        adultosEsperados = sharedViewModel.adultos.value,
+                        ninosEsperados = sharedViewModel.ninos.value
+                    )
+
+                    when {
+                        hayCamposVacios -> {
+                            mostrarErrorCamposVacios = true
+                            mostrarErrorEdad = false
+                        }
+                        !edadesCorrectas -> {
+                            mostrarErrorEdad = true
+                            mostrarErrorCamposVacios = false
+                        }
+                        else -> {
+                            mostrarErrorCamposVacios = false
+                            mostrarErrorEdad = false
+                            sharedViewModel.establecerPasajeros(pasajeros)
+                            onContinuarClick()
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Confirmar y continuar")
             }
+
+
+            if (mostrarErrorCamposVacios) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "⚠️ Por favor, rellena todos los campos obligatorios.",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            if (mostrarErrorEdad) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "⚠️ Las fechas de nacimiento no coinciden con el número de adultos (≥3 años) y niños (<3 años) seleccionados.",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+
+
         }
     }
 }
