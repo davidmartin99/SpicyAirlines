@@ -59,4 +59,9 @@ class RegisterViewModel : ViewModel() {
                 _error.value = "Error de autenticación: ${it.message}"
             }
     }
+
+    fun setError(mensaje: String) {
+        _error.value = mensaje
+    }
+
 }

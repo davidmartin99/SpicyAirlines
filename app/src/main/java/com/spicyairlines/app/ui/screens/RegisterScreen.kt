@@ -12,6 +12,7 @@ import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.viewmodel.RegisterViewModel
 import androidx.compose.ui.text.input.*
 import com.spicyairlines.app.ui.components.PasswordTextFieldConCheckbox
+import com.spicyairlines.app.utils.validarCamposUsuario
 
 @Composable
 fun RegisterScreen(
@@ -31,7 +32,7 @@ fun RegisterScreen(
     val error by viewModel.error.collectAsState()
 
     BasePantalla(
-       onBack = onBack
+        onBack = onBack
     ) {
         Column(
             modifier = Modifier
@@ -60,6 +61,21 @@ fun RegisterScreen(
 
             Button(
                 onClick = {
+                    val resultado = validarCamposUsuario(
+                        nombre = nombre,
+                        apellidos = apellidos,
+                        ciudad = ciudad,
+                        provincia = provincia,
+                        codigoPostal = codigoPostal,
+                        telefono = telefono,
+                        password = password
+                    )
+
+                    if (!resultado.esValido) {
+                        viewModel.setError(resultado.mensajeError ?: "Error de validación")
+                        return@Button
+                    }
+
                     viewModel.register(
                         email = email,
                         password = password,
@@ -83,4 +99,3 @@ fun RegisterScreen(
         }
     }
 }
-

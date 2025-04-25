@@ -6,7 +6,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.spicyairlines.app.screens.*
+import com.spicyairlines.app.ui.screens.EditarPerfilScreen
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
+import com.spicyairlines.app.viewmodel.EditarPerfilViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
 
 sealed class Screen(val route: String) {
@@ -20,6 +22,8 @@ sealed class Screen(val route: String) {
     object ConfirmacionReserva : Screen("confirmacionReserva")
     object PagoCompletado : Screen("pagoCompletado")
     object Perfil : Screen("perfil")
+    object EditarPerfil : Screen("editarPerfil")
+
 }
 
 
@@ -27,7 +31,7 @@ sealed class Screen(val route: String) {
 fun NavigationGraph(
     navController: NavHostController,
     sharedViewModel: SharedViewModel,
-    resultadosViewModel: ResultadosViewModel = viewModel() //
+    resultadosViewModel: ResultadosViewModel = viewModel()
 
 ) {
     NavHost(navController = navController, startDestination = Screen.AuthInicio.route) {
@@ -142,9 +146,22 @@ fun NavigationGraph(
                         popUpTo(Screen.Inicio.route) { inclusive = true }
                     }
                 },
+                onBack = { navController.popBackStack() },
+                onEditarPerfil = {
+                    navController.navigate(Screen.EditarPerfil.route) // ✅ Navegación a nueva pantalla
+                }
+            )
+        }
+
+        composable(Screen.EditarPerfil.route) {
+            val editarPerfilViewModel: EditarPerfilViewModel = viewModel()
+            EditarPerfilScreen(
+                viewModel = editarPerfilViewModel,
                 onBack = { navController.popBackStack() }
             )
         }
+
+
     }
 }
 
