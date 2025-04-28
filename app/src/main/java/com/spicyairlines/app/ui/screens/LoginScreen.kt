@@ -1,7 +1,6 @@
 package com.spicyairlines.app.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,27 +11,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.viewmodel.LoginViewModel
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.platform.LocalFocusManager
 import com.spicyairlines.app.ui.components.PasswordTextFieldConCheckbox
-
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
     onLoginSuccess: () -> Unit,
-    onBack: () -> Unit // 👉 nuevo parámetro para volver atrás
+    onBack: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
     val error by viewModel.error.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState(initial = false) // necesitas este flow en el ViewModel
+    val isLoading by viewModel.isLoading.collectAsState(initial = false)
     val isLoginEnabled = email.isNotBlank() && password.isNotBlank()
-    val focusManager = LocalFocusManager.current
 
     BasePantalla(
-        onBack = onBack // ✅ se muestra solo si no es null
+        onBack = onBack
     ) { padding ->
         Column(
             modifier = Modifier
@@ -44,7 +38,7 @@ fun LoginScreen(
         ) {
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { viewModel.onEmailChange(it) },
                 label = { Text("Correo electrónico") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -55,9 +49,8 @@ fun LoginScreen(
 
             PasswordTextFieldConCheckbox(
                 password = password,
-                onPasswordChange = { password = it }
+                onPasswordChange = { viewModel.onPasswordChange(it) }
             )
-
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -82,4 +75,3 @@ fun LoginScreen(
         }
     }
 }
-

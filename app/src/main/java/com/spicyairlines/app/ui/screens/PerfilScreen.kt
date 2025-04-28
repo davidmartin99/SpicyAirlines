@@ -9,19 +9,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.model.ReservaConVuelo
+import com.spicyairlines.app.navigation.Screen
 import com.spicyairlines.app.viewmodel.PerfilViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun PerfilScreen(
+    navController: NavController,
     viewModel: PerfilViewModel = viewModel(),
     onCerrarSesion: () -> Unit,
     onBack: () -> Unit,
-    onEditarPerfil: () -> Unit // ✅ nuevo parámetro
+    onEditarPerfil: () -> Unit
 ) {
     val reservas by viewModel.reservas.collectAsState()
     val auth = FirebaseAuth.getInstance()
@@ -32,7 +35,9 @@ fun PerfilScreen(
         viewModel.cargarReservasUsuario()
     }
 
-    BasePantalla(onBack = onBack) { padding ->
+    BasePantalla(
+        onBack = onBack
+    ) { padding ->
 
         Column(
             modifier = Modifier
@@ -62,21 +67,25 @@ fun PerfilScreen(
             if (showDropdown) {
                 LazyColumn {
                     items(reservas.groupBy { it.reserva.fechaReserva.toDate() }.toSortedMap(reverseOrder()).entries.toList()) { entry ->
-                        val reserva = entry.value.first()
+
+                        val reservaGroup = entry.value // ✅ todos los vuelos de esta reserva
+                        val reservaId = reservaGroup.first().reserva.id
                         val fechaReserva = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(entry.key)
-                        val id = fechaReserva + reserva.reserva.fechaReserva.seconds
 
                         Column(modifier = Modifier.fillMaxWidth()) {
                             TextButton(
-                                onClick = { expandedMap[id] = !(expandedMap[id] ?: false) }
+                                onClick = { expandedMap[reservaId] = !(expandedMap[reservaId] ?: false) }
                             ) {
                                 Text("Reserva del $fechaReserva")
                             }
 
-                            if (expandedMap[id] == true) {
-                                entry.value.forEach { reservaConVuelo ->
-                                    ReservaResumen(reservaConVuelo)
-                                }
+                            if (expandedMap[reservaId] == true) {
+                                ReservaResumen(
+                                    reservasConVuelos = reservaGroup,
+                                    onEditarPasajeros = {
+                                        navController.navigate("editarPasajeros/$reservaId")
+                                    }
+                                )
                             }
                         }
                     }
@@ -87,15 +96,17 @@ fun PerfilScreen(
             }
         }
     }
-
 }
 
 @Composable
-fun ReservaResumen(reservaConVuelo: ReservaConVuelo) {
+fun ReservaResumen(
+    reservasConVuelos: List<ReservaConVuelo>,
+    onEditarPasajeros: () -> Unit
+) {
     val formatoFecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     val formatoHora = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val vuelo = reservaConVuelo.vuelo
-    val reserva = reservaConVuelo.reserva
+
+    val reserva = reservasConVuelos.first().reserva
     val adultos = reserva.adultos
     val menores = reserva.menores
     val totalPasajeros = adultos + menores
@@ -107,12 +118,31 @@ fun ReservaResumen(reservaConVuelo: ReservaConVuelo) {
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Destino: ${vuelo.destino}", style = MaterialTheme.typography.titleMedium)
-            Text("Salida: ${formatoFecha.format(vuelo.fechaSalida.toDate())} a las ${formatoHora.format(vuelo.fechaSalida.toDate())}")
-            Text("Llegada: ${formatoFecha.format(vuelo.fechaLlegada.toDate())} a las ${formatoHora.format(vuelo.fechaLlegada.toDate())}")
+            reservasConVuelos.forEachIndexed { index, reservaConVuelo ->
+                val vuelo = reservaConVuelo.vuelo
+                Text(
+                    text = if (index == 0) "Vuelo de ida" else "Vuelo de vuelta",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text("Origen: ${vuelo.origen}")
+                Text("Destino: ${vuelo.destino}")
+                Text("Salida: ${formatoFecha.format(vuelo.fechaSalida.toDate())} a las ${formatoHora.format(vuelo.fechaSalida.toDate())}")
+                Text("Llegada: ${formatoFecha.format(vuelo.fechaLlegada.toDate())} a las ${formatoHora.format(vuelo.fechaLlegada.toDate())}")
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
             Text("Clase: ${reserva.clase}")
             Text("Pasajeros: $totalPasajeros ($adultos adulto(s), $menores menor(es))")
             Text("Precio total: ${reserva.precioTotal}€")
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = onEditarPasajeros,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Editar pasajeros")
+            }
         }
     }
 }
+

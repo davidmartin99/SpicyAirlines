@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.spicyairlines.app.screens.*
+import com.spicyairlines.app.ui.screens.EditarPasajerosScreen
 import com.spicyairlines.app.ui.screens.EditarPerfilScreen
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.viewmodel.EditarPerfilViewModel
@@ -23,7 +24,7 @@ sealed class Screen(val route: String) {
     object PagoCompletado : Screen("pagoCompletado")
     object Perfil : Screen("perfil")
     object EditarPerfil : Screen("editarPerfil")
-
+    object EditarPasajeros : Screen("editarPasajeros/{reservaId}")
 }
 
 
@@ -141,6 +142,7 @@ fun NavigationGraph(
 
         composable(Screen.Perfil.route) {
             PerfilScreen(
+                navController = navController,
                 onCerrarSesion = {
                     navController.navigate(Screen.AuthInicio.route) {
                         popUpTo(Screen.Inicio.route) { inclusive = true }
@@ -158,6 +160,14 @@ fun NavigationGraph(
             EditarPerfilScreen(
                 viewModel = editarPerfilViewModel,
                 onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.EditarPasajeros.route) { backStackEntry ->
+            val reservaId = backStackEntry.arguments?.getString("reservaId") ?: ""
+            EditarPasajerosScreen(
+                navController = navController,
+                reservaId = reservaId
             )
         }
 

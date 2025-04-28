@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,8 +26,8 @@ fun InicioScreen(
     onBuscarClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
-    var errorFecha by remember { mutableStateOf(false) }
-    var errorPasajeros by remember { mutableStateOf(false) }
+    var errorFecha by rememberSaveable { mutableStateOf(false) }
+    var errorPasajeros by rememberSaveable { mutableStateOf(false) }
 
     BasePantalla(onPerfilClick = onPerfilClick) {
         Column(

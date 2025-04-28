@@ -3,6 +3,7 @@ package com.spicyairlines.app.model
 import com.google.firebase.Timestamp
 
 data class Pasajero(
+    var id: String = "",
     var nombre: String = "",
     var apellidos: String = "",
     var fechaNacimiento: Timestamp = Timestamp.now(), // obligatorio, no null

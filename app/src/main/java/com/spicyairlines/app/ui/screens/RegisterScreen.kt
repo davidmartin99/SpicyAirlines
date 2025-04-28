@@ -20,15 +20,14 @@ fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
     onBack: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var nombre by remember { mutableStateOf("") }
-    var apellidos by remember { mutableStateOf("") }
-    var ciudad by remember { mutableStateOf("") }
-    var provincia by remember { mutableStateOf("") }
-    var codigoPostal by remember { mutableStateOf("") }
-    var telefono by remember { mutableStateOf("") }
-
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val nombre by viewModel.nombre.collectAsState()
+    val apellidos by viewModel.apellidos.collectAsState()
+    val ciudad by viewModel.ciudad.collectAsState()
+    val provincia by viewModel.provincia.collectAsState()
+    val codigoPostal by viewModel.codigoPostal.collectAsState()
+    val telefono by viewModel.telefono.collectAsState()
     val error by viewModel.error.collectAsState()
 
     BasePantalla(
@@ -42,22 +41,22 @@ fun RegisterScreen(
         ) {
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { viewModel.onEmailChange(it) },
                 label = { Text("Correo electrónico") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             PasswordTextFieldConCheckbox(
                 password = password,
-                onPasswordChange = { password = it }
+                onPasswordChange = { viewModel.onPasswordChange(it) }
             )
 
-            OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") })
-            OutlinedTextField(value = apellidos, onValueChange = { apellidos = it }, label = { Text("Apellidos") })
-            OutlinedTextField(value = ciudad, onValueChange = { ciudad = it }, label = { Text("Ciudad") })
-            OutlinedTextField(value = provincia, onValueChange = { provincia = it }, label = { Text("Provincia") })
-            OutlinedTextField(value = codigoPostal, onValueChange = { codigoPostal = it }, label = { Text("Código Postal") })
-            OutlinedTextField(value = telefono, onValueChange = { telefono = it }, label = { Text("Teléfono") })
+            OutlinedTextField(value = nombre, onValueChange = { viewModel.onNombreChange(it) }, label = { Text("Nombre") })
+            OutlinedTextField(value = apellidos, onValueChange = { viewModel.onApellidosChange(it) }, label = { Text("Apellidos") })
+            OutlinedTextField(value = ciudad, onValueChange = { viewModel.onCiudadChange(it) }, label = { Text("Ciudad") })
+            OutlinedTextField(value = provincia, onValueChange = { viewModel.onProvinciaChange(it) }, label = { Text("Provincia") })
+            OutlinedTextField(value = codigoPostal, onValueChange = { viewModel.onCodigoPostalChange(it) }, label = { Text("Código Postal") })
+            OutlinedTextField(value = telefono, onValueChange = { viewModel.onTelefonoChange(it) }, label = { Text("Teléfono") })
 
             Button(
                 onClick = {
@@ -76,17 +75,7 @@ fun RegisterScreen(
                         return@Button
                     }
 
-                    viewModel.register(
-                        email = email,
-                        password = password,
-                        nombre = nombre,
-                        apellidos = apellidos,
-                        ciudad = ciudad,
-                        provincia = provincia,
-                        codigoPostal = codigoPostal,
-                        telefono = telefono,
-                        onSuccess = onRegisterSuccess
-                    )
+                    viewModel.register(onSuccess = onRegisterSuccess)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

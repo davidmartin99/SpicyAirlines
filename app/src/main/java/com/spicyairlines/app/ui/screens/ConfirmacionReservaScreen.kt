@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -29,8 +30,8 @@ fun ConfirmacionReservaScreen(
     val pasajeros by sharedViewModel.pasajeros.collectAsState()
     val total by sharedViewModel.precioTotal.collectAsState()
 
-    var cargando by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var cargando by rememberSaveable { mutableStateOf(false) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
 
     if (vueloIda == null) {
         BasePantalla(onBack = onBack, onPerfilClick = onPerfilClick) {

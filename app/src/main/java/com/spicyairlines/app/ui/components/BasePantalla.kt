@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -18,6 +19,7 @@ import com.spicyairlines.app.R
 fun BasePantalla(
     onBack: (() -> Unit)? = null,
     onPerfilClick: (() -> Unit)? = null,
+    snackbarHostState: SnackbarHostState? = null, // ✅ Añadido aquí
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
@@ -67,7 +69,11 @@ fun BasePantalla(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
-        }
+        },
+        snackbarHost = {
+            snackbarHostState?.let { SnackbarHost(it) }
+                ?: SnackbarHost(remember { SnackbarHostState() })
+        } // ✅ Ahora Scaffold puede mostrar Snackbars si se los pasas
     ) { padding ->
         Surface(
             modifier = Modifier
@@ -79,8 +85,6 @@ fun BasePantalla(
         }
     }
 }
-
-
 
 @Preview(showBackground = true)
 @Composable
@@ -104,6 +108,3 @@ fun BasePantallaPreview() {
         }
     }
 }
-
-
-
