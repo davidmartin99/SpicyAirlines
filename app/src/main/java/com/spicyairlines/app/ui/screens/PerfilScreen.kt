@@ -45,9 +45,11 @@ fun PerfilScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(onClick = { auth.signOut(); onCerrarSesion() }) {
                     Text("Cerrar sesión")
@@ -61,6 +63,7 @@ fun PerfilScreen(
                     Text("Editar perfil")
                 }
             }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 

@@ -1,6 +1,8 @@
 package com.spicyairlines.app.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,66 +50,78 @@ fun EditarPerfilScreen(
             var nuevoPassword by remember { mutableStateOf("") }
             var errorMensaje by remember { mutableStateOf<String?>(null) }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text("Editar perfil", style = MaterialTheme.typography.titleLarge)
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp, bottom = 100.dp)
+                        .verticalScroll(rememberScrollState())
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text("Editar perfil", style = MaterialTheme.typography.titleLarge)
 
-                OutlinedTextField(value = user.email, onValueChange = {}, label = { Text("Correo (no editable)") }, enabled = false)
-                OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") })
-                OutlinedTextField(value = apellidos, onValueChange = { apellidos = it }, label = { Text("Apellidos") })
-                OutlinedTextField(value = ciudad, onValueChange = { ciudad = it }, label = { Text("Ciudad") })
-                OutlinedTextField(value = provincia, onValueChange = { provincia = it }, label = { Text("Provincia") })
-                OutlinedTextField(value = codigoPostal, onValueChange = { codigoPostal = it }, label = { Text("Código Postal") })
-                OutlinedTextField(value = telefono, onValueChange = { telefono = it }, label = { Text("Teléfono") })
+                    OutlinedTextField(value = user.email, onValueChange = {}, label = { Text("Correo (no editable)") }, enabled = false)
+                    OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") })
+                    OutlinedTextField(value = apellidos, onValueChange = { apellidos = it }, label = { Text("Apellidos") })
+                    OutlinedTextField(value = ciudad, onValueChange = { ciudad = it }, label = { Text("Ciudad") })
+                    OutlinedTextField(value = provincia, onValueChange = { provincia = it }, label = { Text("Provincia") })
+                    OutlinedTextField(value = codigoPostal, onValueChange = { codigoPostal = it }, label = { Text("Código Postal") })
+                    OutlinedTextField(value = telefono, onValueChange = { telefono = it }, label = { Text("Teléfono") })
 
-                OutlinedTextField(
-                    value = nuevoPassword,
-                    onValueChange = {
-                        nuevoPassword = it
-                        viewModel.nuevoPassword = it
-                    },
-                    label = { Text("Nueva contraseña (opcional)") },
-                    visualTransformation = PasswordVisualTransformation()
-                )
+                    OutlinedTextField(
+                        value = nuevoPassword,
+                        onValueChange = {
+                            nuevoPassword = it
+                            viewModel.nuevoPassword = it
+                        },
+                        label = { Text("Nueva contraseña (opcional)") },
+                        visualTransformation = PasswordVisualTransformation()
+                    )
 
-                if (errorMensaje != null) {
-                    Text(text = errorMensaje!!, color = MaterialTheme.colorScheme.error)
+                    if (errorMensaje != null) {
+                        Text(text = errorMensaje!!, color = MaterialTheme.colorScheme.error)
+                    }
                 }
 
-                Button(
-                    onClick = {
-                        val resultado = validarCamposUsuario(
-                            nombre, apellidos, ciudad, provincia, codigoPostal, telefono,
-                            password = if (nuevoPassword.isNotBlank()) nuevoPassword else null
-                        )
-
-                        if (!resultado.esValido) {
-                            errorMensaje = resultado.mensajeError
-                            return@Button
-                        }
-
-                        errorMensaje = null
-                        viewModel.guardarCambios(
-                            nombre = nombre,
-                            apellidos = apellidos,
-                            ciudad = ciudad,
-                            provincia = provincia,
-                            codigoPostal = codigoPostal,
-                            telefono = telefono,
-                            contexto = contexto
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth()
+                // Botón fijo abajo
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 24.dp),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
-                    Text("Guardar cambios")
+                    Button(
+                        onClick = {
+                            val resultado = validarCamposUsuario(
+                                nombre, apellidos, ciudad, provincia, codigoPostal, telefono,
+                                password = if (nuevoPassword.isNotBlank()) nuevoPassword else null
+                            )
+
+                            if (!resultado.esValido) {
+                                errorMensaje = resultado.mensajeError
+                                return@Button
+                            }
+
+                            errorMensaje = null
+                            viewModel.guardarCambios(
+                                nombre = nombre,
+                                apellidos = apellidos,
+                                ciudad = ciudad,
+                                provincia = provincia,
+                                codigoPostal = codigoPostal,
+                                telefono = telefono,
+                                contexto = contexto
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Text("Guardar cambios")
+                    }
                 }
             }
         }
     }
 }
-

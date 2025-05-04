@@ -75,7 +75,18 @@ class ResultadosViewModel : ViewModel() {
                                 Log.d("ResultadosViewModel15", "🔁 Vuelos de vuelta filtrados: ${vuelosVueltaList.size}")
                                 _vuelosVuelta.value = vuelosVueltaList
 
-                                generarCombinacionesValidas(claseSeleccionada, totalPasajeros)
+                                // 🔄 MODIFICADO: ahora obtenemos combinaciones como resultado
+                                val combinaciones = generarCombinacionesValidas(claseSeleccionada, totalPasajeros)
+
+                                if (combinaciones.isEmpty()) {
+                                    // 🔄 MODIFICADO: si no hay combinaciones, vaciamos
+                                    _vuelosIda.value = emptyList()
+                                    _vuelosVuelta.value = emptyList()
+                                    _combinacionesValidas.value = emptyList()
+                                } else {
+                                    _combinacionesValidas.value = combinaciones
+                                }
+
                                 _cargaCompletada.value = true
                             }
                             .addOnFailureListener { e ->
@@ -95,7 +106,8 @@ class ResultadosViewModel : ViewModel() {
         }
     }
 
-    private fun generarCombinacionesValidas(clase: String, pasajeros: Int) {
+    // 🔄 MODIFICADO: ahora devuelve la lista de combinaciones
+    private fun generarCombinacionesValidas(clase: String, pasajeros: Int): List<Pair<Vuelo, Vuelo>> {
         val idaList = _vuelosIda.value
         val vueltaList = _vuelosVuelta.value
 
@@ -108,7 +120,7 @@ class ResultadosViewModel : ViewModel() {
         }
 
         Log.d("ResultadosViewModel18", "🔗 Combinaciones válidas generadas: ${combinaciones.size}")
-        _combinacionesValidas.value = combinaciones
+        return combinaciones
     }
 
     private fun vueloTieneAsientos(vuelo: Vuelo, clase: String, pasajeros: Int): Boolean {
