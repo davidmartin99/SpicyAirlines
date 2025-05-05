@@ -14,13 +14,12 @@ import androidx.compose.ui.unit.dp
 import com.example.compose.AppTheme
 import com.spicyairlines.app.R
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BasePantalla(
     onBack: (() -> Unit)? = null,
     onPerfilClick: (() -> Unit)? = null,
-    snackbarHostState: SnackbarHostState? = null, // ✅ Añadido aquí
+    snackbarHostState: SnackbarHostState? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
@@ -40,14 +39,13 @@ fun BasePantalla(
                         Icon(
                             painter = painterResource(id = R.drawable.logo_letras_2),
                             contentDescription = "Texto SpicyAirlines",
-                            modifier = Modifier
-                                .height(28.dp)
+                            modifier = Modifier.height(28.dp)
                         )
                     }
                 },
                 navigationIcon = {
-                    if (onBack != null) {
-                        IconButton(onClick = onBack) {
+                    onBack?.let {
+                        IconButton(onClick = it) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = "Atrás",
@@ -57,8 +55,8 @@ fun BasePantalla(
                     }
                 },
                 actions = {
-                    if (onPerfilClick != null) {
-                        IconButton(onClick = onPerfilClick) {
+                    onPerfilClick?.let {
+                        IconButton(onClick = it) {
                             Icon(
                                 painter = painterResource(id = R.drawable.user_circle),
                                 contentDescription = "Perfil",
@@ -77,8 +75,7 @@ fun BasePantalla(
         },
         snackbarHost = {
             snackbarHostState?.let { SnackbarHost(it) }
-                ?: SnackbarHost(remember { SnackbarHostState() })
-        } // ✅ Ahora Scaffold puede mostrar Snackbars si se los pasas
+        }
     ) { padding ->
         Surface(
             modifier = Modifier
@@ -91,23 +88,24 @@ fun BasePantalla(
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun BasePantallaPreview() {
     AppTheme {
         BasePantalla(
             onBack = { /* acción volver */ },
-            onPerfilClick = { /* acción perfil */ }
+            onPerfilClick = { /* acción de ir al perfil */ }
         ) { padding ->
             Column(
                 modifier = Modifier
                     .padding(padding)
                     .padding(16.dp)
             ) {
-                Text("Este es el contenido de ejemplo.")
+                Text("Holaaaaa estoy visualizando.")
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = {}) {
-                    Text("Botón de prueba")
+                    Text("Prueba")
                 }
             }
         }

@@ -12,39 +12,19 @@ import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.viewmodel.EditarPerfilViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
 
-sealed class Screen(val route: String) {
-    object AuthInicio : Screen("authInicio")
-    object Login : Screen("login")
-    object Register : Screen("register")
-    object Inicio : Screen("inicio")
-    object Resultados : Screen("resultados")
-    object VueloSeleccionado : Screen("vueloSeleccionado")
-    object DatosPasajeros : Screen("datosPasajeros")
-    object ConfirmacionReserva : Screen("confirmacionReserva")
-    object PagoCompletado : Screen("pagoCompletado")
-    object Perfil : Screen("perfil")
-    object EditarPerfil : Screen("editarPerfil")
-    object EditarPasajeros : Screen("editarPasajeros/{reservaId}")
-}
-
-
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
     sharedViewModel: SharedViewModel,
     resultadosViewModel: ResultadosViewModel = viewModel()
-
 ) {
     NavHost(navController = navController, startDestination = Screen.AuthInicio.route) {
 
+        // --- AUTH ---
         composable(Screen.AuthInicio.route) {
             PantallaInicioAuth(
-                onLoginClick = {
-                    navController.navigate(Screen.Login.route)
-                },
-                onRegisterClick = {
-                    navController.navigate(Screen.Register.route)
-                }
+                onLoginClick = { navController.navigate(Screen.Login.route) },
+                onRegisterClick = { navController.navigate(Screen.Register.route) }
             )
         }
 
@@ -70,39 +50,31 @@ fun NavigationGraph(
             )
         }
 
+        // --- INICIO Y RESULTADOS ---
         composable(Screen.Inicio.route) {
             InicioScreen(
                 sharedViewModel = sharedViewModel,
                 resultadosViewModel = resultadosViewModel,
-                onBuscarClick = {
-                    navController.navigate(Screen.Resultados.route)
-                },
-                onPerfilClick = {
-                    navController.navigate(Screen.Perfil.route)
-                }
+                onBuscarClick = { navController.navigate(Screen.Resultados.route) },
+                onPerfilClick = { navController.navigate(Screen.Perfil.route) }
             )
         }
 
-
         composable(Screen.Resultados.route) {
             ResultadosScreen(
-                sharedViewModel = sharedViewModel, // ✅ también importante
+                sharedViewModel = sharedViewModel,
                 resultadosViewModel = resultadosViewModel,
-                onSeleccionarVuelo = {
-                    navController.navigate(Screen.VueloSeleccionado.route)
-                },
+                onSeleccionarVuelo = { navController.navigate(Screen.VueloSeleccionado.route) },
                 onBack = { navController.popBackStack() },
                 onPerfilClick = { navController.navigate(Screen.Perfil.route) }
             )
         }
 
-
+        // --- FLUJO DE RESERVA ---
         composable(Screen.VueloSeleccionado.route) {
             VueloSeleccionadoScreen(
                 sharedViewModel = sharedViewModel,
-                onContinuarClick = {
-                    navController.navigate(Screen.DatosPasajeros.route)
-                },
+                onContinuarClick = { navController.navigate(Screen.DatosPasajeros.route) },
                 onBack = { navController.popBackStack() },
                 onPerfilClick = { navController.navigate(Screen.Perfil.route) }
             )
@@ -111,9 +83,7 @@ fun NavigationGraph(
         composable(Screen.DatosPasajeros.route) {
             DatosPasajerosScreen(
                 sharedViewModel = sharedViewModel,
-                onContinuarClick = {
-                    navController.navigate(Screen.ConfirmacionReserva.route)
-                },
+                onContinuarClick = { navController.navigate(Screen.ConfirmacionReserva.route) },
                 onBack = { navController.popBackStack() },
                 onPerfilClick = { navController.navigate(Screen.Perfil.route) }
             )
@@ -122,9 +92,7 @@ fun NavigationGraph(
         composable(Screen.ConfirmacionReserva.route) {
             ConfirmacionReservaScreen(
                 sharedViewModel = sharedViewModel,
-                onConfirmarClick = {
-                    navController.navigate(Screen.PagoCompletado.route)
-                },
+                onConfirmarClick = { navController.navigate(Screen.PagoCompletado.route) },
                 onBack = { navController.popBackStack() },
                 onPerfilClick = { navController.navigate(Screen.Perfil.route) }
             )
@@ -140,6 +108,7 @@ fun NavigationGraph(
             )
         }
 
+        // --- PERFIL ---
         composable(Screen.Perfil.route) {
             PerfilScreen(
                 navController = navController,
@@ -149,30 +118,24 @@ fun NavigationGraph(
                     }
                 },
                 onBack = { navController.popBackStack() },
-                onEditarPerfil = {
-                    navController.navigate(Screen.EditarPerfil.route) // ✅ Navegación a nueva pantalla
-                }
+                onEditarPerfil = { navController.navigate(Screen.EditarPerfil.route) }
             )
         }
 
         composable(Screen.EditarPerfil.route) {
-            val editarPerfilViewModel: EditarPerfilViewModel = viewModel()
             EditarPerfilScreen(
-                viewModel = editarPerfilViewModel,
+                viewModel = viewModel<EditarPerfilViewModel>(),
                 onBack = { navController.popBackStack() }
             )
         }
 
+        // --- EDICIÓN PASAJEROS ---
         composable(Screen.EditarPasajeros.route) { backStackEntry ->
-            val reservaId = backStackEntry.arguments?.getString("reservaId") ?: ""
+            val reservaId = backStackEntry.arguments?.getString("reservaId").orEmpty()
             EditarPasajerosScreen(
                 navController = navController,
                 reservaId = reservaId
             )
         }
-
-
     }
 }
-
-

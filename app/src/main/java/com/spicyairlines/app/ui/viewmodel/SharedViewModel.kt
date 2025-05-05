@@ -48,9 +48,6 @@ class SharedViewModel : ViewModel() {
         _claseSeleccionada.value = clase
     }
 
-    fun actualizarPrecioTotal(precio: Double) {
-        _precioTotal.value = precio
-    }
 
     fun establecerPasajeros(lista: List<Pasajero>) {
         _pasajeros.value = lista
@@ -62,16 +59,6 @@ class SharedViewModel : ViewModel() {
 
     fun establecerNinos(cantidad: Int) {
         _ninos.value = cantidad
-    }
-
-    fun reset() {
-        _vueloSeleccionado.value = null
-        _vueloVueltaSeleccionado.value = null
-        _claseSeleccionada.value = ""
-        _precioTotal.value = 0.0
-        _pasajeros.value = emptyList()
-        _adultos.value = 0
-        _ninos.value = 0
     }
 
     fun calcularPrecioBillete(vueloIda: Vuelo, vueloVuelta: Vuelo? = null) {
@@ -90,14 +77,6 @@ class SharedViewModel : ViewModel() {
 
     fun actualizarPrecioTotalReserva(precio: Double) {
         _precioTotalReserva.value = precio
-    }
-
-
-    private val _reservaId = MutableStateFlow("")
-    val reservaId: StateFlow<String> = _reservaId
-
-    fun setReservaId(id: String) {
-        _reservaId.value = id
     }
 
 }

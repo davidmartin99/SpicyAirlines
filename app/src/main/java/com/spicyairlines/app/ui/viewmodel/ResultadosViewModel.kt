@@ -1,6 +1,5 @@
 package com.spicyairlines.app.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
@@ -55,7 +54,6 @@ class ResultadosViewModel : ViewModel() {
                         vueloTieneAsientos(it, claseSeleccionada, totalPasajeros)
                     }
 
-                    Log.d("ResultadosViewModel14", "✅ Vuelos de ida filtrados: ${vuelosIdaList.size}")
                     _vuelosIda.value = vuelosIdaList
 
                     if (fechaVuelta != null) {
@@ -72,14 +70,11 @@ class ResultadosViewModel : ViewModel() {
                                     vueloTieneAsientos(it, claseSeleccionada, totalPasajeros)
                                 }
 
-                                Log.d("ResultadosViewModel15", "🔁 Vuelos de vuelta filtrados: ${vuelosVueltaList.size}")
                                 _vuelosVuelta.value = vuelosVueltaList
 
-                                // 🔄 MODIFICADO: ahora obtenemos combinaciones como resultado
                                 val combinaciones = generarCombinacionesValidas(claseSeleccionada, totalPasajeros)
 
                                 if (combinaciones.isEmpty()) {
-                                    // 🔄 MODIFICADO: si no hay combinaciones, vaciamos
                                     _vuelosIda.value = emptyList()
                                     _vuelosVuelta.value = emptyList()
                                     _combinacionesValidas.value = emptyList()
@@ -89,8 +84,7 @@ class ResultadosViewModel : ViewModel() {
 
                                 _cargaCompletada.value = true
                             }
-                            .addOnFailureListener { e ->
-                                Log.e("ResultadosViewModel16", "❌ Error al cargar vuelos de vuelta", e)
+                            .addOnFailureListener {
                                 _cargaCompletada.value = true
                             }
                     } else {
@@ -99,28 +93,23 @@ class ResultadosViewModel : ViewModel() {
                         _cargaCompletada.value = true
                     }
                 }
-                .addOnFailureListener { e ->
-                    Log.e("ResultadosViewModel17", "❌ Error al cargar vuelos de ida", e)
+                .addOnFailureListener {
                     _cargaCompletada.value = true
                 }
         }
     }
 
-    // 🔄 MODIFICADO: ahora devuelve la lista de combinaciones
     private fun generarCombinacionesValidas(clase: String, pasajeros: Int): List<Pair<Vuelo, Vuelo>> {
         val idaList = _vuelosIda.value
         val vueltaList = _vuelosVuelta.value
 
-        val combinaciones = idaList.flatMap { ida ->
+        return idaList.flatMap { ida ->
             vueltaList.filter { vuelta ->
                 vuelta.fechaSalida.toDate().after(ida.fechaLlegada.toDate()) &&
                         vueloTieneAsientos(ida, clase, pasajeros) &&
                         vueloTieneAsientos(vuelta, clase, pasajeros)
             }.map { vuelta -> ida to vuelta }
         }
-
-        Log.d("ResultadosViewModel18", "🔗 Combinaciones válidas generadas: ${combinaciones.size}")
-        return combinaciones
     }
 
     private fun vueloTieneAsientos(vuelo: Vuelo, clase: String, pasajeros: Int): Boolean {

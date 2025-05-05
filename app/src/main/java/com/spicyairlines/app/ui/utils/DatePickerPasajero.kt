@@ -5,7 +5,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
@@ -25,10 +24,7 @@ fun DatePickerPasajero(
     var selectedMonth by remember { mutableStateOf(calendar.get(Calendar.MONTH)) } // 0-based
     var selectedDay by remember { mutableStateOf(calendar.get(Calendar.DAY_OF_MONTH)) }
 
-    val months = listOf(
-        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-    )
+    val months = (1..12).map { String.format("%02d", it) } // "01" to "12"
 
     val daysInMonth = remember(selectedYear, selectedMonth) {
         val cal = Calendar.getInstance()
@@ -39,7 +35,7 @@ fun DatePickerPasajero(
     }
 
     val years = (minYear..maxYear).toList().reversed()
-    val days = (1..daysInMonth).toList()
+    val days = (1..daysInMonth).map { it.toString().padStart(2, '0') }
 
     LaunchedEffect(selectedYear, selectedMonth, selectedDay) {
         val cal = Calendar.getInstance()
@@ -52,32 +48,37 @@ fun DatePickerPasajero(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(label, style = MaterialTheme.typography.labelLarge)
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             // Año
             DropdownSelector(
                 label = "Año",
                 items = years.map { it.toString() },
                 selectedItem = selectedYear.toString(),
                 onItemSelected = { selectedYear = it.toInt() },
-                modifier = Modifier.weight(1.2f)
+                modifier = Modifier.weight(1f)
             )
 
-            // Mes
+            // Mes (en números)
             DropdownSelector(
                 label = "Mes",
                 items = months,
-                selectedItem = months[selectedMonth],
-                onItemSelected = { selectedMonth = months.indexOf(it) },
-                modifier = Modifier.weight(1.5f)
+                selectedItem = String.format("%02d", selectedMonth + 1),
+                onItemSelected = { selectedMonth = it.toInt() - 1 },
+                modifier = Modifier.weight(1f)
             )
 
             // Día
             DropdownSelector(
                 label = "Día",
-                items = days.map { it.toString() },
-                selectedItem = selectedDay.toString(),
+                items = days,
+                selectedItem = String.format("%02d", selectedDay),
                 onItemSelected = { selectedDay = it.toInt() },
-                modifier = Modifier.weight(0.8f)
+                modifier = Modifier.weight(1f)
             )
         }
     }
@@ -126,4 +127,3 @@ fun DropdownSelector(
         }
     }
 }
-

@@ -47,7 +47,7 @@ fun EditarPasajerosScreen(
 
     LaunchedEffect(cambiosGuardados) {
         if (cambiosGuardados) {
-            snackbarHostState.showSnackbar("✅ Cambios guardados")
+            snackbarHostState.showSnackbar("Cambios guardados correctamente.")
             delay(4000)
             snackbarHostState.currentSnackbarData?.dismiss()
         }

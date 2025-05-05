@@ -15,14 +15,5 @@ open class InicioViewModel : ViewModel() {
     var clase = mutableStateOf("Turista")
 
 
-    fun resetCampos() {
-        ciudadOrigen.value = ""
-        ciudadDestino.value = ""
-        fechaIda.value = null
-        fechaVuelta.value = null
-        adultos.value = 1
-        ninos.value = 0
-        clase.value = "Turista"
 
-    }
 }
