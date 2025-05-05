@@ -1,5 +1,6 @@
 package com.spicyairlines.app.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,11 +9,13 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.spicyairlines.app.R
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.model.Pasajero
-import com.spicyairlines.app.model.Vuelo
+import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.viewmodel.ConfirmacionReservaViewModel
 
@@ -33,26 +36,6 @@ fun ConfirmacionReservaScreen(
     var cargando by rememberSaveable { mutableStateOf(false) }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
 
-    if (vueloIda == null) {
-        BasePantalla(onBack = onBack, onPerfilClick = onPerfilClick) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("No se ha seleccionado un vuelo.")
-            }
-        }
-        return
-    }
-
-    fun hayAsientosDisponibles(vuelo: Vuelo, clase: String, cantidad: Int): Boolean {
-        return when (clase) {
-            "Business" -> vuelo.asientosBusiness >= cantidad
-            "Premium" -> vuelo.asientosPremium >= cantidad
-            else -> vuelo.asientosTurista >= cantidad
-        }
-    }
-
     BasePantalla(
         onBack = onBack,
         onPerfilClick = onPerfilClick
@@ -61,67 +44,77 @@ fun ConfirmacionReservaScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.Start
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text("✈️ Resumen de la reserva", style = MaterialTheme.typography.titleMedium)
+                Text("Resumen de la reserva", style = MaterialTheme.typography.titleLarge)
             }
 
             item {
-                Text("🛫 Ida: ${vueloIda!!.origen} → ${vueloIda!!.destino}")
-                Text("   Salida: ${vueloIda!!.fechaSalida.toDate()}")
-                Text("   Llegada: ${vueloIda!!.fechaLlegada.toDate()}")
-            }
-
-            vueloVuelta?.let {
-                item {
-                    Text("🔁 Vuelta: ${it.origen} → ${it.destino}")
-                    Text("   Salida: ${it.fechaSalida.toDate()}")
-                    Text("   Llegada: ${it.fechaLlegada.toDate()}")
-                }
+                vueloVuelta?.let { vuelta ->
+                    VueloCombinadoCard(
+                        ida = vueloIda!!,
+                        vuelta = vuelta,
+                        sharedViewModel = sharedViewModel,
+                        onClick = {}
+                    )
+                } ?: VueloCard(
+                    vuelo = vueloIda!!,
+                    sharedViewModel = sharedViewModel,
+                    onClick = {}
+                )
             }
 
             item {
                 Text("Clase: $clase")
                 Text("Total a pagar: $total €")
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
             item {
-                Text("👥 Pasajeros:", style = MaterialTheme.typography.titleSmall)
+                Text("Pasajeros", style = MaterialTheme.typography.titleMedium)
             }
 
             items(pasajeros) { pasajero: Pasajero ->
-                Column {
-                    Text("🧍 ${pasajero.nombre} ${pasajero.apellidos}")
-                    Text("   Nacimiento: ${pasajero.fechaNacimiento.toDate()}")
-                    Text("   Pasaporte: ${pasajero.numeroPasaporte}")
-                    Text("   Teléfono: ${pasajero.telefono}")
-                    Spacer(modifier = Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.id_card),
+                            contentDescription = "Pasajero",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "${pasajero.nombre} ${pasajero.apellidos}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+
+                    Column(modifier = Modifier.padding(start = 32.dp, top = 4.dp)) {
+                        Text("Pasaporte: ${pasajero.numeroPasaporte}")
+                        Text("Teléfono: ${pasajero.telefono}")
+                    }
+
+                    Divider(modifier = Modifier.padding(top = 12.dp))
                 }
             }
 
             item {
                 if (cargando) {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator()
                     }
                 } else {
                     Button(
                         onClick = {
-                            val totalPasajeros = pasajeros.size
-
-                            val asientosDisponiblesIda = hayAsientosDisponibles(vueloIda!!, clase, totalPasajeros)
-                            val asientosDisponiblesVuelta = vueloVuelta?.let {
-                                hayAsientosDisponibles(it, clase, totalPasajeros)
-                            } ?: true // si no hay vuelo de vuelta, se da por válido
-
-                            if (!asientosDisponiblesIda || !asientosDisponiblesVuelta) {
-                                error = "❌ No hay suficientes asientos disponibles en la clase seleccionada."
-                                return@Button
-                            }
-
                             cargando = true
                             viewModel.guardarReservaFirebase(
                                 vueloIda = vueloIda!!,
@@ -148,7 +141,7 @@ fun ConfirmacionReservaScreen(
 
             item {
                 error?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error)
+                    MensajeErrorConIcono(mensaje = it)
                 }
             }
         }

@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.viewmodel.LoginViewModel
 import com.spicyairlines.app.ui.components.PasswordTextFieldConCheckbox
+import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 
 @Composable
 fun LoginScreen(
@@ -69,8 +70,8 @@ fun LoginScreen(
             }
 
             error?.let {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = it, color = MaterialTheme.colorScheme.error)
+                Spacer(modifier = Modifier.height(12.dp))
+                MensajeErrorConIcono(mensaje = it)
             }
         }
     }

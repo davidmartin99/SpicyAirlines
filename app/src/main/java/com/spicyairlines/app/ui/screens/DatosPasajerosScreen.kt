@@ -1,25 +1,28 @@
 package com.spicyairlines.app.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.spicyairlines.app.R
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.viewmodel.DatosPasajerosViewModel
-import com.spicyairlines.app.model.Pasajero // ✅ Este es el único cambio necesario
+import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import com.spicyairlines.app.ui.utils.DatePickerPasajero
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.utils.edadesSonValidas
-import java.util.Calendar
 
 @Composable
 fun DatosPasajerosScreen(
-    sharedViewModel: SharedViewModel, // ✅ Añade esto
+    sharedViewModel: SharedViewModel,
     onContinuarClick: () -> Unit,
     viewModel: DatosPasajerosViewModel = viewModel(),
     onPerfilClick: () -> Unit,
@@ -36,55 +39,75 @@ fun DatosPasajerosScreen(
     var mostrarErrorCamposVacios by rememberSaveable { mutableStateOf(false) }
     var mostrarErrorEdad by rememberSaveable { mutableStateOf(false) }
 
-    BasePantalla(
-        onBack = onBack,
-        onPerfilClick = onPerfilClick
-    ) {
+    BasePantalla(onBack = onBack, onPerfilClick = onPerfilClick) {
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             pasajeros.forEachIndexed { index, pasajero ->
-                Text("Pasajero ${index + 1}", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(4.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.id_card),
+                            contentDescription = "Pasajero",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Pasajero ${index + 1}", style = MaterialTheme.typography.titleMedium)
+                    }
 
-                OutlinedTextField(
-                    value = pasajero.nombre,
-                    onValueChange = { viewModel.actualizarCampo(index, "nombre", it) },
-                    label = { Text("Nombre") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = pasajero.nombre,
+                        onValueChange = { viewModel.actualizarCampo(index, "nombre", it) },
+                        label = { Text("Nombre") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                OutlinedTextField(
-                    value = pasajero.apellidos,
-                    onValueChange = { viewModel.actualizarCampo(index, "apellidos", it) },
-                    label = { Text("Apellidos") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = pasajero.apellidos,
+                        onValueChange = { viewModel.actualizarCampo(index, "apellidos", it) },
+                        label = { Text("Apellidos") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                DatePickerPasajero(
-                    label = "Fecha de nacimiento",
-                    initialDate = pasajero.fechaNacimiento.toDate(), // ✅ Ya no necesitas el operador `?.`
-                    onDateSelected = { viewModel.actualizarFechaNacimiento(index, it) }
-                )
+                    DatePickerPasajero(
+                        label = "Fecha de nacimiento",
+                        initialDate = pasajero.fechaNacimiento.toDate(),
+                        onDateSelected = { viewModel.actualizarFechaNacimiento(index, it) }
+                    )
 
+                    OutlinedTextField(
+                        value = pasajero.numeroPasaporte,
+                        onValueChange = { viewModel.actualizarCampo(index, "numeroPasaporte", it) },
+                        label = { Text("Número de pasaporte") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                OutlinedTextField(
-                    value = pasajero.numeroPasaporte,
-                    onValueChange = { viewModel.actualizarCampo(index, "numeroPasaporte", it) },
-                    label = { Text("Número de pasaporte") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = pasajero.telefono,
+                        onValueChange = { viewModel.actualizarCampo(index, "telefono", it) },
+                        label = { Text("Teléfono") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-                OutlinedTextField(
-                    value = pasajero.telefono,
-                    onValueChange = { viewModel.actualizarCampo(index, "telefono", it) },
-                    label = { Text("Teléfono") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Divider(thickness = 1.dp)
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            if (mostrarErrorCamposVacios) {
+                MensajeErrorConIcono("Por favor, rellena todos los campos obligatorios.")
+            }
+
+            if (mostrarErrorEdad) {
+                MensajeErrorConIcono("Las fechas de nacimiento no coinciden con el número de adultos (≥3 años) y niños (<3 años) seleccionados.")
             }
 
             Button(
@@ -121,26 +144,6 @@ fun DatosPasajerosScreen(
             ) {
                 Text("Confirmar y continuar")
             }
-
-
-            if (mostrarErrorCamposVacios) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "⚠️ Por favor, rellena todos los campos obligatorios.",
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-
-            if (mostrarErrorEdad) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "⚠️ Las fechas de nacimiento no coinciden con el número de adultos (≥3 años) y niños (<3 años) seleccionados.",
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-
-
-
         }
     }
 }

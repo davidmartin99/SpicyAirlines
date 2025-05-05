@@ -1,20 +1,19 @@
 package com.spicyairlines.app.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.components.DatePickerFirebase
 import com.spicyairlines.app.viewmodel.InicioViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
-import com.google.firebase.Timestamp
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import java.util.*
 
@@ -33,9 +32,19 @@ fun InicioScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                text = "Encuentra tu vuelo ideal",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.primary
+            )
+
             DropdownMenuOrigen(
                 selected = viewModel.ciudadOrigen.value,
                 onSeleccion = { viewModel.ciudadOrigen.value = it }
@@ -95,14 +104,16 @@ fun InicioScreen(
             ) {
                 Text("Buscar vuelos")
             }
-
         }
     }
 }
 
 @Composable
 fun CheckboxSoloIda(viewModel: InicioViewModel) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Checkbox(
             checked = viewModel.soloIda.value,
             onCheckedChange = { viewModel.soloIda.value = it }
@@ -113,17 +124,21 @@ fun CheckboxSoloIda(viewModel: InicioViewModel) {
 
 @Composable
 fun MostrarErrores(errorFecha: Boolean, errorPasajeros: Boolean) {
-    if (errorFecha) {
-        Text(
-            text = "La fecha de vuelta no puede ser anterior a la de ida.",
-            color = MaterialTheme.colorScheme.error
-        )
-    }
-    if (errorPasajeros) {
-        Text(
-            text = "Debes seleccionar al menos 1 pasajero.",
-            color = MaterialTheme.colorScheme.error
-        )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (errorFecha) {
+            Text(
+                text = "La fecha de vuelta no puede ser anterior a la de ida.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        if (errorPasajeros) {
+            Text(
+                text = "Debes seleccionar al menos 1 pasajero.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
 
@@ -141,15 +156,17 @@ fun SelectorViajerosClase(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Clase")
+        Text("Clase", fontWeight = FontWeight.Medium)
         ExposedDropdownMenuBox(expanded = expandedClase, onExpandedChange = { expandedClase = !expandedClase }) {
             TextField(
                 value = clase.value,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Clase") },
+                label = { Text("Selecciona clase") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expandedClase) },
-                modifier = Modifier.menuAnchor()
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
             )
             ExposedDropdownMenu(
                 expanded = expandedClase,
@@ -171,11 +188,19 @@ fun SelectorViajerosClase(
 
 @Composable
 fun SelectorContador(label: String, contador: MutableState<Int>, minimo: Int) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Text(label, modifier = Modifier.weight(1f))
-        IconButton(onClick = { if (contador.value > minimo) contador.value-- }) { Text("-") }
+        IconButton(onClick = { if (contador.value > minimo) contador.value-- }) {
+            Text("-")
+        }
         Text(contador.value.toString())
-        IconButton(onClick = { contador.value++ }) { Text("+") }
+        IconButton(onClick = { contador.value++ }) {
+            Text("+")
+        }
     }
 }
 
@@ -197,10 +222,10 @@ fun DropdownMenuOrigen(
             onValueChange = {},
             readOnly = true,
             label = { Text("Ciudad de origen") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded)
-            },
-            modifier = Modifier.menuAnchor()
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -238,10 +263,10 @@ fun DropdownMenuDestino(
             onValueChange = {},
             readOnly = true,
             label = { Text("Ciudad de destino") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded)
-            },
-            modifier = Modifier.menuAnchor()
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
         )
         ExposedDropdownMenu(
             expanded = expanded,

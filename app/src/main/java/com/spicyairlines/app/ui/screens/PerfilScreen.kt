@@ -7,13 +7,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
+import com.spicyairlines.app.R
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.model.ReservaConVuelo
-import com.spicyairlines.app.navigation.Screen
 import com.spicyairlines.app.viewmodel.PerfilViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -46,8 +47,7 @@ fun PerfilScreen(
                 .padding(16.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -56,7 +56,7 @@ fun PerfilScreen(
                 }
 
                 Button(onClick = { showDropdown = !showDropdown }) {
-                    Text("Tus reservas")
+                    Text("Reservas")
                 }
 
                 Button(onClick = { onEditarPerfil() }) {
@@ -64,38 +64,62 @@ fun PerfilScreen(
                 }
             }
 
-
             Spacer(modifier = Modifier.height(16.dp))
 
             if (showDropdown) {
-                LazyColumn {
-                    items(reservas.groupBy { it.reserva.fechaReserva.toDate() }.toSortedMap(reverseOrder()).entries.toList()) { entry ->
+                if (reservas.isEmpty()) {
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.no_results),
+                            contentDescription = "Sin reservas",
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            modifier = Modifier
+                                .size(80.dp)
+                                .padding(bottom = 8.dp)
+                        )
+                        Text(
+                            text = "No tienes reservas aún.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                } else {
+                    LazyColumn {
+                        items(
+                            reservas
+                                .groupBy { it.reserva.fechaReserva.toDate() }
+                                .toSortedMap(reverseOrder())
+                                .entries.toList()
+                        ) { entry ->
+                            val reservaGroup = entry.value
+                            val reservaId = reservaGroup.first().reserva.id
+                            val fechaReserva = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(entry.key)
 
-                        val reservaGroup = entry.value // ✅ todos los vuelos de esta reserva
-                        val reservaId = reservaGroup.first().reserva.id
-                        val fechaReserva = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(entry.key)
-
-                        Column(modifier = Modifier.fillMaxWidth()) {
-                            TextButton(
-                                onClick = { expandedMap[reservaId] = !(expandedMap[reservaId] ?: false) }
-                            ) {
-                                Text("Reserva del $fechaReserva")
-                            }
-
-                            if (expandedMap[reservaId] == true) {
-                                ReservaResumen(
-                                    reservasConVuelos = reservaGroup,
-                                    onEditarPasajeros = {
-                                        navController.navigate("editarPasajeros/$reservaId")
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                TextButton(
+                                    onClick = {
+                                        expandedMap[reservaId] = !(expandedMap[reservaId] ?: false)
                                     }
-                                )
+                                ) {
+                                    Text("Reserva del $fechaReserva")
+                                }
+
+                                if (expandedMap[reservaId] == true) {
+                                    ReservaResumen(
+                                        reservasConVuelos = reservaGroup,
+                                        onEditarPasajeros = {
+                                            navController.navigate("editarPasajeros/$reservaId")
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            } else if (reservas.isEmpty()) {
-                Spacer(modifier = Modifier.height(24.dp))
-                Text("No tienes reservas aún.", style = MaterialTheme.typography.bodyLarge)
             }
         }
     }
@@ -148,4 +172,3 @@ fun ReservaResumen(
         }
     }
 }
-

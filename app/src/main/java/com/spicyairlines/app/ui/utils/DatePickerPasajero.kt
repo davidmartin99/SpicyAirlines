@@ -59,7 +59,7 @@ fun DatePickerPasajero(
                 items = years.map { it.toString() },
                 selectedItem = selectedYear.toString(),
                 onItemSelected = { selectedYear = it.toInt() },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1.2f)
             )
 
             // Mes
@@ -68,7 +68,7 @@ fun DatePickerPasajero(
                 items = months,
                 selectedItem = months[selectedMonth],
                 onItemSelected = { selectedMonth = months.indexOf(it) },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1.5f)
             )
 
             // Día
@@ -77,7 +77,7 @@ fun DatePickerPasajero(
                 items = days.map { it.toString() },
                 selectedItem = selectedDay.toString(),
                 onItemSelected = { selectedDay = it.toInt() },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(0.8f)
             )
         }
     }
@@ -105,8 +105,11 @@ fun DropdownSelector(
             readOnly = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor()
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
         )
+
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
@@ -123,3 +126,4 @@ fun DropdownSelector(
         }
     }
 }
+

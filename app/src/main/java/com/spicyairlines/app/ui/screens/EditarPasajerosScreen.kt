@@ -1,17 +1,20 @@
 package com.spicyairlines.app.ui.screens
 
-import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.spicyairlines.app.R
 import com.spicyairlines.app.components.BasePantalla
+import com.spicyairlines.app.ui.components.MensajeErrorConIcono
+import com.spicyairlines.app.ui.utils.DatePickerPasajero
 import com.spicyairlines.app.ui.viewmodel.EditarPasajerosViewModel
 import com.spicyairlines.app.utils.validarPasajero
 import kotlinx.coroutines.delay
@@ -29,23 +32,19 @@ fun EditarPasajerosScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val cambiosGuardados by viewModel.cambiosGuardados.collectAsState()
 
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val errores = remember { mutableStateListOf<String?>() }
 
-    // 🚀 Cargar pasajeros y vuelos al entrar
     LaunchedEffect(Unit) {
         viewModel.cargarPasajeros(reservaId)
         viewModel.cargarVuelosDeReserva(reservaId)
     }
 
-    // Inicializar lista de errores
     LaunchedEffect(pasajeros) {
         errores.clear()
         errores.addAll(List(pasajeros.size) { null })
     }
 
-    // Mostrar Snackbar si se guardan cambios
     LaunchedEffect(cambiosGuardados) {
         if (cambiosGuardados) {
             snackbarHostState.showSnackbar("✅ Cambios guardados")
@@ -58,7 +57,6 @@ fun EditarPasajerosScreen(
         onBack = { navController.popBackStack() },
         snackbarHostState = snackbarHostState
     ) { padding ->
-
         if (isLoading) {
             Box(
                 Modifier
@@ -69,15 +67,13 @@ fun EditarPasajerosScreen(
                 CircularProgressIndicator()
             }
         } else {
-            // Dentro de BasePantalla
             LazyColumn(
                 modifier = Modifier
+                    .fillMaxSize()
                     .padding(padding)
-                    .padding(16.dp)
-                    .fillMaxWidth(),
+                    .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Mostrar vuelos asociados
                 if (vuelos.isNotEmpty()) {
                     item {
                         Card(
@@ -88,104 +84,109 @@ fun EditarPasajerosScreen(
                         ) {
                             Column(Modifier.padding(16.dp)) {
                                 Text("Vuelos asociados", style = MaterialTheme.typography.titleMedium)
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
 
                                 vuelos.forEachIndexed { index, vuelo ->
-                                    Text("Vuelo ${index + 1}: ${vuelo.origen} → ${vuelo.destino}")
-                                    Text("Salida: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(vuelo.fechaSalida.toDate())}")
-                                    Text("Llegada: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(vuelo.fechaLlegada.toDate())}")
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    val iconId = if (index == 0) R.drawable.vuelo_ida else R.drawable.vuelo_vuelta
+                                    val titulo = if (index == 0) "Vuelo de ida" else "Vuelo de vuelta"
+
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                        modifier = Modifier.padding(bottom = 16.dp)
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                painter = painterResource(id = iconId),
+                                                contentDescription = titulo,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(titulo, style = MaterialTheme.typography.titleSmall)
+                                        }
+
+                                        Text("Ruta: ${vuelo.origen} → ${vuelo.destino}")
+                                        Text("Salida: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(vuelo.fechaSalida.toDate())}")
+                                        Text("Llegada: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(vuelo.fechaLlegada.toDate())}")
+                                    }
+
+                                    Divider()
                                 }
                             }
                         }
                     }
                 }
 
-                // Mostrar formulario de pasajeros
                 items(pasajeros.size) { index ->
                     val pasajero = pasajeros[index]
 
-                    Text(
-                        text = "Pasajero ${index + 1}",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = pasajero.nombre,
-                        onValueChange = { viewModel.actualizarNombre(index, it) },
-                        label = { Text("Nombre") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (errores.getOrNull(index)?.contains("Nombre") == true) {
-                        Text("El nombre no puede estar vacío.", color = MaterialTheme.colorScheme.error)
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = pasajero.apellidos,
-                        onValueChange = { viewModel.actualizarApellidos(index, it) },
-                        label = { Text("Apellidos") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (errores.getOrNull(index)?.contains("Apellidos") == true) {
-                        Text("Los apellidos no pueden estar vacíos.", color = MaterialTheme.colorScheme.error)
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = pasajero.numeroPasaporte,
-                        onValueChange = { viewModel.actualizarPasaporte(index, it) },
-                        label = { Text("Número de pasaporte") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (errores.getOrNull(index)?.contains("pasaporte") == true) {
-                        Text("Número de pasaporte inválido (3 letras + 6 números + 1 letra/dígito).", color = MaterialTheme.colorScheme.error)
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = pasajero.telefono,
-                        onValueChange = { viewModel.actualizarTelefono(index, it) },
-                        label = { Text("Teléfono (6 dígitos)") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (errores.getOrNull(index)?.contains("teléfono") == true) {
-                        Text("El teléfono debe tener exactamente 6 dígitos numéricos.", color = MaterialTheme.colorScheme.error)
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                    val fechaTexto = dateFormatter.format(pasajero.fechaNacimiento.toDate())
-
-                    Button(
-                        onClick = {
-                            val calendar = Calendar.getInstance()
-                            calendar.time = pasajero.fechaNacimiento.toDate()
-                            DatePickerDialog(
-                                context,
-                                { _, year, month, dayOfMonth ->
-                                    val selectedDate = Calendar.getInstance()
-                                    selectedDate.set(year, month, dayOfMonth)
-                                    viewModel.actualizarFechaNacimiento(index, selectedDate.time)
-                                },
-                                calendar.get(Calendar.YEAR),
-                                calendar.get(Calendar.MONTH),
-                                calendar.get(Calendar.DAY_OF_MONTH)
-                            ).show()
-                        },
-                        modifier = Modifier.fillMaxWidth()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text("Fecha de nacimiento: $fechaTexto")
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.id_card),
+                                contentDescription = "Pasajero",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Pasajero ${index + 1}", style = MaterialTheme.typography.titleMedium)
+                        }
 
-                    Divider(thickness = 1.dp)
+                        OutlinedTextField(
+                            value = pasajero.nombre,
+                            onValueChange = { viewModel.actualizarNombre(index, it) },
+                            label = { Text("Nombre") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (errores.getOrNull(index)?.contains("Nombre") == true) {
+                            MensajeErrorConIcono("El nombre no puede estar vacío.")
+                        }
+
+                        OutlinedTextField(
+                            value = pasajero.apellidos,
+                            onValueChange = { viewModel.actualizarApellidos(index, it) },
+                            label = { Text("Apellidos") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (errores.getOrNull(index)?.contains("Apellidos") == true) {
+                            MensajeErrorConIcono("Los apellidos no pueden estar vacíos.")
+                        }
+
+                        OutlinedTextField(
+                            value = pasajero.numeroPasaporte,
+                            onValueChange = { viewModel.actualizarPasaporte(index, it) },
+                            label = { Text("Número de pasaporte") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (errores.getOrNull(index)?.contains("pasaporte") == true) {
+                            MensajeErrorConIcono("Número de pasaporte inválido (3 letras + 6 números + 1 letra/dígito).")
+                        }
+
+                        OutlinedTextField(
+                            value = pasajero.telefono,
+                            onValueChange = { viewModel.actualizarTelefono(index, it) },
+                            label = { Text("Teléfono (9 dígitos)") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (errores.getOrNull(index)?.contains("teléfono") == true) {
+                            MensajeErrorConIcono("El teléfono debe tener exactamente 9 dígitos numéricos.")
+                        }
+
+                        DatePickerPasajero(
+                            label = "Fecha de nacimiento",
+                            initialDate = pasajero.fechaNacimiento.toDate(),
+                            onDateSelected = { viewModel.actualizarFechaNacimiento(index, it) }
+                        )
+
+                        Divider(thickness = 1.dp)
+                    }
                 }
 
-                // Botón Guardar cambios
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = {
                             var hayErrores = false
@@ -209,7 +210,6 @@ fun EditarPasajerosScreen(
                     }
                 }
             }
-
         }
     }
 }

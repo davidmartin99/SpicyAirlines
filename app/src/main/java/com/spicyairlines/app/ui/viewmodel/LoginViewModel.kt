@@ -21,7 +21,6 @@ class LoginViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    // ✅ Añadido: Estado del email y password
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
 
@@ -47,12 +46,17 @@ class LoginViewModel : ViewModel() {
                     cargarUsuarioDesdeFirestore(uid, onSuccess)
                 } else {
                     _isLoading.value = false
-                    _error.value = "No se pudo obtener el UID."
+                    _error.value = "No se pudo obtener el ID del usuario."
                 }
             }
             .addOnFailureListener {
                 _isLoading.value = false
-                _error.value = it.message
+                val mensaje = when {
+                    it.message?.contains("password") == true -> "Contraseña incorrecta."
+                    it.message?.contains("no user record") == true -> "Correo no registrado."
+                    else -> "Error al iniciar sesión: ${it.message}"
+                }
+                _error.value = mensaje
             }
     }
 
@@ -66,7 +70,7 @@ class LoginViewModel : ViewModel() {
             }
             .addOnFailureListener {
                 _isLoading.value = false
-                _error.value = "Error al cargar datos del usuario: ${it.message}"
+                _error.value = "Error al cargar tus datos: ${it.message}"
             }
     }
 }

@@ -15,7 +15,6 @@ class RegisterViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    // ✅ Añadimos el estado de todos los campos
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
 
@@ -40,7 +39,6 @@ class RegisterViewModel : ViewModel() {
     private val _telefono = MutableStateFlow("")
     val telefono: StateFlow<String> = _telefono
 
-    // ✅ Métodos para actualizar los campos
     fun onEmailChange(newEmail: String) { _email.value = newEmail }
     fun onPasswordChange(newPassword: String) { _password.value = newPassword }
     fun onNombreChange(newNombre: String) { _nombre.value = newNombre }
@@ -50,9 +48,7 @@ class RegisterViewModel : ViewModel() {
     fun onCodigoPostalChange(newCodigoPostal: String) { _codigoPostal.value = newCodigoPostal }
     fun onTelefonoChange(newTelefono: String) { _telefono.value = newTelefono }
 
-    fun register(
-        onSuccess: () -> Unit
-    ) {
+    fun register(onSuccess: () -> Unit) {
         _error.value = null
 
         auth.createUserWithEmailAndPassword(_email.value, _password.value)
@@ -72,18 +68,22 @@ class RegisterViewModel : ViewModel() {
                     firestore.collection("usuarios")
                         .document(uid)
                         .set(usuario)
-                        .addOnSuccessListener {
-                            onSuccess()
-                        }
+                        .addOnSuccessListener { onSuccess() }
                         .addOnFailureListener {
-                            _error.value = "Error al guardar datos: ${it.message}"
+                            _error.value = "Error al guardar tus datos: ${it.message}"
                         }
                 } else {
-                    _error.value = "No se pudo obtener el UID del usuario"
+                    _error.value = "No se pudo obtener el ID del usuario"
                 }
             }
             .addOnFailureListener {
-                _error.value = "Error de autenticación: ${it.message}"
+                val mensaje = when {
+                    it.message?.contains("email address is already in use") == true -> "Este correo ya está registrado."
+                    it.message?.contains("badly formatted") == true -> "Formato de correo inválido."
+                    it.message?.contains("Password should be at least") == true -> "La contraseña debe tener al menos 6 caracteres."
+                    else -> "Error al registrarse: ${it.message}"
+                }
+                _error.value = mensaje
             }
     }
 

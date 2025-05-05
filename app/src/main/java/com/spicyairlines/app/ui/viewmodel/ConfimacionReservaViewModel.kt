@@ -68,7 +68,6 @@ class ConfirmacionReservaViewModel : ViewModel() {
         db.collection("reservas")
             .add(reserva)
             .addOnSuccessListener { docRef ->
-                println("✅ Reserva guardada con ID: ${docRef.id}")
                 val reservaRef = db.collection("reservas").document(docRef.id)
                 val tareas = pasajeros.map { pasajero ->
                     reservaRef.collection("pasajeros").add(pasajero)
@@ -76,23 +75,18 @@ class ConfirmacionReservaViewModel : ViewModel() {
 
                 Tasks.whenAllComplete(tareas)
                     .addOnSuccessListener {
-                        println("✅ Todos los pasajeros guardados correctamente.")
-
-                        // ✅ Actualizar asientos disponibles en ambos vuelos
+                        // ✅ Actualizar asientos en Firebase para ambos vuelos
                         actualizarAsientosDisponibles(vueloIda, clase, pasajeros.size, onFailure)
                         vueloVuelta?.let {
                             actualizarAsientosDisponibles(it, clase, pasajeros.size, onFailure)
                         }
-
                         onSuccess()
                     }
                     .addOnFailureListener {
-                        println("❌ Error al guardar pasajeros: ${it.message}")
                         onFailure(it)
                     }
             }
             .addOnFailureListener {
-                println("❌ Error al guardar reserva: ${it.message}")
                 onFailure(it)
             }
     }
@@ -103,7 +97,7 @@ class ConfirmacionReservaViewModel : ViewModel() {
         cantidad: Int,
         onError: (Exception) -> Unit
     ) {
-        val vueloRef = db.collection("vuelos").document(vuelo.id)
+        val vueloRef = db.collection("Vuelos").document(vuelo.id)
 
         db.runTransaction { transaction ->
             val snapshot = transaction.get(vueloRef)
@@ -122,7 +116,6 @@ class ConfirmacionReservaViewModel : ViewModel() {
                 }
             }
         }.addOnFailureListener {
-            println("❌ Error al actualizar asientos: ${it.message}")
             onError(it)
         }
     }

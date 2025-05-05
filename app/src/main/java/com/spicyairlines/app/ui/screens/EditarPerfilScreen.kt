@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.spicyairlines.app.components.BasePantalla
+import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import com.spicyairlines.app.utils.validarCamposUsuario
 import com.spicyairlines.app.viewmodel.EditarPerfilViewModel
 
@@ -53,21 +54,63 @@ fun EditarPerfilScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 16.dp, bottom = 100.dp)
+                        .fillMaxSize()
                         .verticalScroll(rememberScrollState())
-                        .fillMaxSize(),
+                        .padding(horizontal = 16.dp, vertical = 24.dp)
+                        .padding(bottom = 80.dp), // espacio para botón fijo
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text("Editar perfil", style = MaterialTheme.typography.titleLarge)
 
-                    OutlinedTextField(value = user.email, onValueChange = {}, label = { Text("Correo (no editable)") }, enabled = false)
-                    OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") })
-                    OutlinedTextField(value = apellidos, onValueChange = { apellidos = it }, label = { Text("Apellidos") })
-                    OutlinedTextField(value = ciudad, onValueChange = { ciudad = it }, label = { Text("Ciudad") })
-                    OutlinedTextField(value = provincia, onValueChange = { provincia = it }, label = { Text("Provincia") })
-                    OutlinedTextField(value = codigoPostal, onValueChange = { codigoPostal = it }, label = { Text("Código Postal") })
-                    OutlinedTextField(value = telefono, onValueChange = { telefono = it }, label = { Text("Teléfono") })
+                    OutlinedTextField(
+                        value = user.email,
+                        onValueChange = {},
+                        label = { Text("Correo electrónico") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = false
+                    )
+
+                    OutlinedTextField(
+                        value = nombre,
+                        onValueChange = { nombre = it },
+                        label = { Text("Nombre") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = apellidos,
+                        onValueChange = { apellidos = it },
+                        label = { Text("Apellidos") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = ciudad,
+                        onValueChange = { ciudad = it },
+                        label = { Text("Ciudad") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = provincia,
+                        onValueChange = { provincia = it },
+                        label = { Text("Provincia") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = codigoPostal,
+                        onValueChange = { codigoPostal = it },
+                        label = { Text("Código Postal") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = telefono,
+                        onValueChange = { telefono = it },
+                        label = { Text("Teléfono") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     OutlinedTextField(
                         value = nuevoPassword,
@@ -76,15 +119,15 @@ fun EditarPerfilScreen(
                             viewModel.nuevoPassword = it
                         },
                         label = { Text("Nueva contraseña (opcional)") },
-                        visualTransformation = PasswordVisualTransformation()
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth()
                     )
 
-                    if (errorMensaje != null) {
-                        Text(text = errorMensaje!!, color = MaterialTheme.colorScheme.error)
+                    errorMensaje?.let {
+                        MensajeErrorConIcono(mensaje = it)
                     }
                 }
 
-                // Botón fijo abajo
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

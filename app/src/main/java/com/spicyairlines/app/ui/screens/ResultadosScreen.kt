@@ -1,18 +1,22 @@
 package com.spicyairlines.app.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.spicyairlines.app.R
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.model.Vuelo
 import com.spicyairlines.app.ui.utils.HoraUTC.formatearFechaHoraLocal
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
-
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun ResultadosScreen(
@@ -29,40 +33,43 @@ fun ResultadosScreen(
 
     var ordenPrecio by remember { mutableStateOf("Menor a mayor") }
     val opcionesOrden = listOf("Menor a mayor", "Mayor a menor")
+    var expanded by remember { mutableStateOf(false) }
 
-    BasePantalla(
-        onBack = onBack,
-        onPerfilClick = onPerfilClick
-    ) {
+    BasePantalla(onBack = onBack, onPerfilClick = onPerfilClick) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // 🔽 Título y dropdown para ordenar
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = if (vuelosVuelta.isEmpty()) "Vuelos disponibles" else "Combinaciones de vuelos",
-                    style = MaterialTheme.typography.titleLarge
-                )
+            if (cargaCompletada && (vuelosIda.isNotEmpty() || combinacionesValidas.isNotEmpty())) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = if (vuelosVuelta.isEmpty()) "Vuelos disponibles" else "Combinaciones de vuelos",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center
+                    )
 
-                var expanded by remember { mutableStateOf(false) }
-
-                Box {
-                    Button(onClick = { expanded = true }) {
-                        Text("Orden: $ordenPrecio")
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        opcionesOrden.forEach { opcion ->
-                            DropdownMenuItem(
-                                text = { Text(opcion) },
-                                onClick = {
-                                    ordenPrecio = opcion
-                                    expanded = false
-                                }
+                    Box {
+                        IconButton(onClick = { expanded = true }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.filter),
+                                contentDescription = "Ordenar vuelos"
                             )
+                        }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            opcionesOrden.forEach { opcion ->
+                                DropdownMenuItem(
+                                    text = { Text(opcion) },
+                                    onClick = {
+                                        ordenPrecio = opcion
+                                        expanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -72,11 +79,25 @@ fun ResultadosScreen(
 
             when {
                 !cargaCompletada -> {
-                    CircularProgressIndicator()
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
 
                 vuelosIda.isEmpty() -> {
-                    Text("❌ No se encontraron vuelos disponibles.")
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.no_results),
+                            contentDescription = "Sin resultados",
+                            modifier = Modifier.size(150.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("No se encontraron vuelos disponibles.")
+                    }
                 }
 
                 vuelosVuelta.isEmpty() -> {
@@ -122,22 +143,26 @@ fun VueloCard(vuelo: Vuelo, sharedViewModel: SharedViewModel, onClick: () -> Uni
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = colorPorTemporada(vuelo.temporada))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("✈️ Vuelo disponible", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("${vuelo.origen} (${vuelo.aeropuertoOrigen}) → ${vuelo.destino} (${vuelo.aeropuertoDestino})", style = MaterialTheme.typography.bodyLarge)
-            Text("Salida: ${formatearFechaHoraLocal(vuelo.fechaSalida, vuelo.origen)}", style = MaterialTheme.typography.bodySmall)
-            Text("Llegada: ${formatearFechaHoraLocal(vuelo.fechaLlegada, vuelo.destino)}", style = MaterialTheme.typography.bodySmall)
-            Text("Duración: ${vuelo.duracion}", style = MaterialTheme.typography.bodySmall)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(painter = painterResource(id = R.drawable.vuelo_ida), contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(vuelo.origen, style = MaterialTheme.typography.titleMedium)
+                Icon(painter = painterResource(id = R.drawable.flecha), contentDescription = null)
+                Text(vuelo.destino, style = MaterialTheme.typography.titleMedium)
+            }
 
+            Spacer(modifier = Modifier.height(8.dp))
+            InfoItem(R.drawable.reloj, "Salida: ${formatearFechaHoraLocal(vuelo.fechaSalida, vuelo.origen)}")
+            InfoItem(R.drawable.reloj, "Llegada: ${formatearFechaHoraLocal(vuelo.fechaLlegada, vuelo.destino)}")
+            InfoItem(R.drawable.duracion, "Duración: ${vuelo.duracion}")
             Spacer(modifier = Modifier.height(12.dp))
             Divider()
             Spacer(modifier = Modifier.height(8.dp))
-
-            Text("💰 Precio por billete: $precioPorPasajero €", style = MaterialTheme.typography.titleMedium)
+            InfoItem(R.drawable.euro, "Precio por billete: $precioPorPasajero €")
         }
     }
 }
@@ -157,53 +182,61 @@ fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, sharedViewModel: SharedViewMod
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = colorPorTemporada(ida.temporada))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("✈️ Vuelo de ida", style = MaterialTheme.typography.titleMedium)
-            Text("${ida.origen} (${ida.aeropuertoOrigen}) → ${ida.destino} (${ida.aeropuertoDestino})", style = MaterialTheme.typography.bodyLarge)
-            Text("Salida: ${formatearFechaHoraLocal(ida.fechaSalida, ida.origen)}", style = MaterialTheme.typography.bodySmall)
-            Text("Llegada: ${formatearFechaHoraLocal(ida.fechaLlegada, ida.destino)}", style = MaterialTheme.typography.bodySmall)
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text("🔁 Vuelo de vuelta", style = MaterialTheme.typography.titleMedium)
-            Text("${vuelta.origen} (${vuelta.aeropuertoOrigen}) → ${vuelta.destino} (${vuelta.aeropuertoDestino})", style = MaterialTheme.typography.bodyLarge)
-            Text("Salida: ${formatearFechaHoraLocal(vuelta.fechaSalida, vuelta.origen)}", style = MaterialTheme.typography.bodySmall)
-            Text("Llegada: ${formatearFechaHoraLocal(vuelta.fechaLlegada, vuelta.destino)}", style = MaterialTheme.typography.bodySmall)
-
+            SectionVuelo("Vuelo de ida", R.drawable.vuelo_ida, ida)
+            Spacer(modifier = Modifier.height(8.dp))
+            SectionVuelo("Vuelo de vuelta", R.drawable.vuelo_vuelta, vuelta)
             Spacer(modifier = Modifier.height(12.dp))
             Divider()
             Spacer(modifier = Modifier.height(8.dp))
-
-            Text("💰 Precio por billete: $precioPorPasajero €", style = MaterialTheme.typography.titleMedium)
+            InfoItem(R.drawable.euro, "Precio por billete: $precioPorPasajero €")
         }
     }
 }
 
-// ✅ Función auxiliar para ordenar vuelos de ida
+@Composable
+fun SectionVuelo(titulo: String, iconId: Int, vuelo: Vuelo) {
+    Text(titulo, style = MaterialTheme.typography.titleMedium)
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(vuelo.origen)
+        Icon(painter = painterResource(id = R.drawable.flecha), contentDescription = null)
+        Text(vuelo.destino)
+    }
+    InfoItem(R.drawable.reloj, "Salida: ${formatearFechaHoraLocal(vuelo.fechaSalida, vuelo.origen)}")
+    InfoItem(R.drawable.reloj, "Llegada: ${formatearFechaHoraLocal(vuelo.fechaLlegada, vuelo.destino)}")
+}
+
+@Composable
+fun InfoItem(iconId: Int, texto: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            painter = painterResource(id = iconId),
+            contentDescription = null,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = texto)
+    }
+}
+
 fun ordenarVuelosIda(vuelos: List<Vuelo>, orden: String): List<Vuelo> {
-    return when (orden) {
-        "Mayor a menor" -> vuelos.sortedByDescending { it.precioBase }
-        else -> vuelos.sortedBy { it.precioBase }
-    }
+    return if (orden == "Mayor a menor") vuelos.sortedByDescending { it.precioBase }
+    else vuelos.sortedBy { it.precioBase }
 }
 
-// ✅ Función auxiliar para ordenar combinaciones ida + vuelta
 fun ordenarCombinaciones(combinaciones: List<Pair<Vuelo, Vuelo>>, orden: String): List<Pair<Vuelo, Vuelo>> {
-    return when (orden) {
-        "Mayor a menor" -> combinaciones.sortedByDescending { it.first.precioBase + it.second.precioBase }
-        else -> combinaciones.sortedBy { it.first.precioBase + it.second.precioBase }
-    }
+    return if (orden == "Mayor a menor") combinaciones.sortedByDescending { it.first.precioBase + it.second.precioBase }
+    else combinaciones.sortedBy { it.first.precioBase + it.second.precioBase }
 }
 
-// 🎨 Asigna color según temporada
 fun colorPorTemporada(temporada: String): Color {
-    return when (temporada.lowercase()) {
+    return when (temporada) {
         "alta" -> Color(0xFF65010C)
-        "media" -> Color(0xFF9A5E02) // naranja oscuro
-        "baja" -> Color(0xFF07490A)  // verde oscuro
-        else -> Color(0xFFFFFFFF)
+        "media" -> Color(0xFF9A5E02)
+        "baja" -> Color(0xFF07490A)
+        else -> Color.White
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.example.compose.AppTheme
 import com.spicyairlines.app.R
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BasePantalla(
@@ -31,13 +32,17 @@ fun BasePantalla(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.flight),
-                            contentDescription = "Logo",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(24.dp)
+                            painter = painterResource(id = R.drawable.logo_avion_2),
+                            contentDescription = "Icono SpicyAirlines",
+                            modifier = Modifier.size(40.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("SpicyAirlines")
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.logo_letras_2),
+                            contentDescription = "Texto SpicyAirlines",
+                            modifier = Modifier
+                                .height(28.dp)
+                        )
                     }
                 },
                 navigationIcon = {
