@@ -6,20 +6,23 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.spicyairlines.app.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import androidx.compose.ui.graphics.Color
+import com.spicyairlines.app.ui.utils.NivelSeguridadContrasena
 
 class RegisterViewModel : ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
-
+    // Campos del formulario
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
 
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password
+
+    private val _nivelContrasena = MutableStateFlow(NivelSeguridadContrasena.MUY_DEBIL)
+    val nivelContrasena: StateFlow<NivelSeguridadContrasena> = _nivelContrasena
 
     private val _nombre = MutableStateFlow("")
     val nombre: StateFlow<String> = _nombre
@@ -39,17 +42,128 @@ class RegisterViewModel : ViewModel() {
     private val _telefono = MutableStateFlow("")
     val telefono: StateFlow<String> = _telefono
 
-    fun onEmailChange(newEmail: String) { _email.value = newEmail }
-    fun onPasswordChange(newPassword: String) { _password.value = newPassword }
-    fun onNombreChange(newNombre: String) { _nombre.value = newNombre }
-    fun onApellidosChange(newApellidos: String) { _apellidos.value = newApellidos }
-    fun onCiudadChange(newCiudad: String) { _ciudad.value = newCiudad }
-    fun onProvinciaChange(newProvincia: String) { _provincia.value = newProvincia }
-    fun onCodigoPostalChange(newCodigoPostal: String) { _codigoPostal.value = newCodigoPostal }
-    fun onTelefonoChange(newTelefono: String) { _telefono.value = newTelefono }
+    // Errores individuales
+    private val _errorNombre = MutableStateFlow<String?>(null)
+    val errorNombre: StateFlow<String?> = _errorNombre
+
+    private val _errorApellidos = MutableStateFlow<String?>(null)
+    val errorApellidos: StateFlow<String?> = _errorApellidos
+
+    private val _errorCiudad = MutableStateFlow<String?>(null)
+    val errorCiudad: StateFlow<String?> = _errorCiudad
+
+    private val _errorProvincia = MutableStateFlow<String?>(null)
+    val errorProvincia: StateFlow<String?> = _errorProvincia
+
+    private val _errorCodigoPostal = MutableStateFlow<String?>(null)
+    val errorCodigoPostal: StateFlow<String?> = _errorCodigoPostal
+
+    private val _errorTelefono = MutableStateFlow<String?>(null)
+    val errorTelefono: StateFlow<String?> = _errorTelefono
+
+    private val _errorPassword = MutableStateFlow<String?>(null)
+    val errorPassword: StateFlow<String?> = _errorPassword
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
+    // ======= Funciones de actualización y validación =======
+
+    fun onEmailChange(newEmail: String) {
+        _email.value = newEmail
+    }
+
+    fun onPasswordChange(newPassword: String) {
+        _password.value = newPassword
+        validarPassword()
+    }
+
+    fun onNombreChange(newNombre: String) {
+        _nombre.value = newNombre
+        _errorNombre.value = if (newNombre.matches(Regex("^[\\p{L}\\s'-]{2,50}$"))) null
+        else "Nombre inválido"
+    }
+
+    fun onApellidosChange(newApellidos: String) {
+        _apellidos.value = newApellidos
+        _errorApellidos.value = if (newApellidos.matches(Regex("^[\\p{L}\\s'-]{2,50}$"))) null
+        else "Apellidos inválidos"
+    }
+
+    fun onCiudadChange(newCiudad: String) {
+        _ciudad.value = newCiudad
+        _errorCiudad.value = if (newCiudad.matches(Regex("^[\\p{L}\\s'-]{2,50}$"))) null
+        else "Ciudad inválida"
+    }
+
+    fun onProvinciaChange(newProvincia: String) {
+        _provincia.value = newProvincia
+        _errorProvincia.value = if (newProvincia.matches(Regex("^[\\p{L}\\s'-]{2,50}$"))) null
+        else "Provincia inválida"
+    }
+
+    fun onCodigoPostalChange(newCodigoPostal: String) {
+        _codigoPostal.value = newCodigoPostal
+        _errorCodigoPostal.value = if (newCodigoPostal.length == 5 && newCodigoPostal.all { it.isDigit() }) null
+        else "Código postal inválido"
+    }
+
+    fun onTelefonoChange(newTelefono: String) {
+        _telefono.value = newTelefono
+        _errorTelefono.value = if (newTelefono.length == 9 && newTelefono.all { it.isDigit() }) null
+        else "Teléfono inválido"
+    }
+
+    fun validarPassword() {
+        val password = _password.value
+
+        val tieneMayusculas = password.count { it.isUpperCase() }
+        val tieneMinusculas = password.any { it.isLowerCase() }
+        val tieneNumeros = password.count { it.isDigit() }
+        val tieneSimbolos = password.any { !it.isLetterOrDigit() }
+        val longitud = password.length
+
+        val cumpleRequisitosBasicos = longitud >= 8 && tieneMayusculas >= 1 && tieneMinusculas && tieneNumeros >= 1 && tieneSimbolos
+
+        _nivelContrasena.value = when {
+            password.isBlank() -> NivelSeguridadContrasena.MUY_DEBIL
+            !cumpleRequisitosBasicos -> NivelSeguridadContrasena.MUY_DEBIL
+            longitud in 8..10 -> NivelSeguridadContrasena.DEBIL
+            longitud in 11..12 && tieneMayusculas > 1 && tieneNumeros > 1 -> NivelSeguridadContrasena.NORMAL
+            longitud in 13..14 && tieneMayusculas > 1 && tieneNumeros > 1 -> NivelSeguridadContrasena.BUENA
+            longitud > 14 && tieneMayusculas > 1 && tieneNumeros > 1 -> NivelSeguridadContrasena.EXCELENTE
+            else -> NivelSeguridadContrasena.DEBIL
+        }
+
+        _errorPassword.value = when {
+            password.isBlank() -> "La contraseña no puede estar vacía"
+            !cumpleRequisitosBasicos -> "Debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo"
+            else -> null
+        }
+    }
+
+
+
+
+    // ======= Registro con Firebase =======
 
     fun register(onSuccess: () -> Unit) {
         _error.value = null
+
+        // Revisión rápida de errores individuales antes de registrar
+        if (listOf(
+                _errorNombre.value,
+                _errorApellidos.value,
+                _errorCiudad.value,
+                _errorProvincia.value,
+                _errorCodigoPostal.value,
+                _errorTelefono.value,
+                _errorPassword.value
+            ).any { it != null }
+        ) {
+            _error.value = "Corrige los errores antes de continuar"
+            return
+        }
 
         auth.createUserWithEmailAndPassword(_email.value, _password.value)
             .addOnSuccessListener { authResult ->

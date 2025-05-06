@@ -1,12 +1,17 @@
 package com.spicyairlines.app.screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -16,7 +21,6 @@ import com.spicyairlines.app.model.Vuelo
 import com.spicyairlines.app.ui.utils.HoraUTC.formatearFechaHoraLocal
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
-import androidx.compose.ui.graphics.Color
 
 @Composable
 fun ResultadosScreen(
@@ -102,24 +106,28 @@ fun ResultadosScreen(
 
                 vuelosVuelta.isEmpty() -> {
                     val vuelosOrdenados = ordenarVuelosIda(vuelosIda, ordenPrecio)
-                    vuelosOrdenados.forEach { vuelo ->
-                        VueloCard(vuelo = vuelo, sharedViewModel = sharedViewModel) {
-                            sharedViewModel.seleccionarVuelo(vuelo)
-                            sharedViewModel.seleccionarVueloVuelta(null)
-                            sharedViewModel.calcularPrecioBillete(vuelo)
-                            onSeleccionarVuelo()
+                    LazyColumn {
+                        items(vuelosOrdenados) { vuelo ->
+                            VueloCard(vuelo = vuelo, sharedViewModel = sharedViewModel) {
+                                sharedViewModel.seleccionarVuelo(vuelo)
+                                sharedViewModel.seleccionarVueloVuelta(null)
+                                sharedViewModel.calcularPrecioBillete(vuelo)
+                                onSeleccionarVuelo()
+                            }
                         }
                     }
                 }
 
                 else -> {
                     val combinacionesOrdenadas = ordenarCombinaciones(combinacionesValidas, ordenPrecio)
-                    combinacionesOrdenadas.forEach { (ida, vuelta) ->
-                        VueloCombinadoCard(ida, vuelta, sharedViewModel = sharedViewModel) {
-                            sharedViewModel.seleccionarVuelo(ida)
-                            sharedViewModel.seleccionarVueloVuelta(vuelta)
-                            sharedViewModel.calcularPrecioBillete(ida, vuelta)
-                            onSeleccionarVuelo()
+                    LazyColumn {
+                        items(combinacionesOrdenadas) { (ida, vuelta) ->
+                            VueloCombinadoCard(ida, vuelta, sharedViewModel = sharedViewModel) {
+                                sharedViewModel.seleccionarVuelo(ida)
+                                sharedViewModel.seleccionarVueloVuelta(vuelta)
+                                sharedViewModel.calcularPrecioBillete(ida, vuelta)
+                                onSeleccionarVuelo()
+                            }
                         }
                     }
                 }
@@ -138,13 +146,22 @@ fun VueloCard(vuelo: Vuelo, sharedViewModel: SharedViewModel, onClick: () -> Uni
     }
     val precioPorPasajero = vuelo.precioBase * multiplicador
 
+    var isPressed by remember { mutableStateOf(false) }
+    val elevation by animateDpAsState(targetValue = if (isPressed) 10.dp else 6.dp)
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isPressed) Color(0xFFE1F5FE) else colorPorTemporada(vuelo.temporada)
+    )
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = colorPorTemporada(vuelo.temporada))
+            .clickable {
+                isPressed = !isPressed
+                onClick()
+            },
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -154,7 +171,6 @@ fun VueloCard(vuelo: Vuelo, sharedViewModel: SharedViewModel, onClick: () -> Uni
                 Icon(painter = painterResource(id = R.drawable.flecha), contentDescription = null)
                 Text(vuelo.destino, style = MaterialTheme.typography.titleMedium)
             }
-
             Spacer(modifier = Modifier.height(8.dp))
             InfoItem(R.drawable.reloj, "Salida: ${formatearFechaHoraLocal(vuelo.fechaSalida, vuelo.origen)}")
             InfoItem(R.drawable.reloj, "Llegada: ${formatearFechaHoraLocal(vuelo.fechaLlegada, vuelo.destino)}")
@@ -177,18 +193,40 @@ fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, sharedViewModel: SharedViewMod
     }
     val precioPorPasajero = (ida.precioBase + vuelta.precioBase) * multiplicador
 
+    var isPressed by remember { mutableStateOf(false) }
+    val elevation by animateDpAsState(targetValue = if (isPressed) 10.dp else 6.dp)
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isPressed) Color(0xFFE1F5FE) else colorPorTemporada(ida.temporada)
+    )
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = colorPorTemporada(ida.temporada))
+            .clickable {
+                isPressed = !isPressed
+                onClick()
+            },
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            SectionVuelo("Vuelo de ida", R.drawable.vuelo_ida, ida)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(painter = painterResource(id = R.drawable.vuelo_ida), contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Vuelo de ida", style = MaterialTheme.typography.titleMedium)
+            }
+            SectionVuelo(R.drawable.vuelo_ida, ida)
+
             Spacer(modifier = Modifier.height(8.dp))
-            SectionVuelo("Vuelo de vuelta", R.drawable.vuelo_vuelta, vuelta)
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(painter = painterResource(id = R.drawable.vuelo_vuelta), contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Vuelo de vuelta", style = MaterialTheme.typography.titleMedium)
+            }
+            SectionVuelo(R.drawable.vuelo_vuelta, vuelta)
+
             Spacer(modifier = Modifier.height(12.dp))
             Divider()
             Spacer(modifier = Modifier.height(8.dp))
@@ -198,8 +236,7 @@ fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, sharedViewModel: SharedViewMod
 }
 
 @Composable
-fun SectionVuelo(titulo: String, iconId: Int, vuelo: Vuelo) {
-    Text(titulo, style = MaterialTheme.typography.titleMedium)
+fun SectionVuelo(iconId: Int, vuelo: Vuelo) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(vuelo.origen)
         Icon(painter = painterResource(id = R.drawable.flecha), contentDescription = null)

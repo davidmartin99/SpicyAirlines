@@ -2,6 +2,8 @@ package com.spicyairlines.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.spicyairlines.app.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,16 +51,12 @@ class LoginViewModel : ViewModel() {
                     _error.value = "No se pudo obtener el ID del usuario."
                 }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { exception ->
                 _isLoading.value = false
-                val mensaje = when {
-                    it.message?.contains("password") == true -> "Contraseña incorrecta."
-                    it.message?.contains("no user record") == true -> "Correo no registrado."
-                    else -> "Error al iniciar sesión: ${it.message}"
-                }
-                _error.value = mensaje
+                _error.value = "Correo o contraseña incorrectos."
             }
     }
+
 
     private fun cargarUsuarioDesdeFirestore(uid: String, onSuccess: () -> Unit) {
         firestore.collection("usuarios").document(uid).get()

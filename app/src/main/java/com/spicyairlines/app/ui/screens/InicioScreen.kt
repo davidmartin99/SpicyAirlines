@@ -44,6 +44,7 @@ fun InicioScreen(
                 ),
                 color = MaterialTheme.colorScheme.primary
             )
+            Spacer(modifier = Modifier.height(16.dp))
 
             DropdownMenuOrigen(
                 selected = viewModel.ciudadOrigen.value,
@@ -67,7 +68,13 @@ fun InicioScreen(
             }
 
             CheckboxSoloIda(viewModel)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             SelectorViajerosClase(viewModel.adultos, viewModel.ninos, viewModel.clase)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             MostrarErrores(errorFecha, errorPasajeros)
 
             Button(
@@ -181,8 +188,8 @@ fun SelectorViajerosClase(
             }
         }
 
-        SelectorContador("Adultos", adultos, minimo = 1)
-        SelectorContador("Niños", ninos, minimo = 0)
+        SelectorContador("Adultos ", adultos, minimo = 1)
+        SelectorContador("Niños (menores de 3 años)", ninos, minimo = 0)
     }
 }
 

@@ -14,8 +14,28 @@ fun validarCamposUsuario(
     telefono: String,
     password: String? = null
 ): ValidacionUsuario {
+    val regexTexto = Regex("^[\\p{L}\\s'-]{2,50}$") // permite letras con tildes y ñ, espacios, apóstrofes y guiones
+    // Obliga a tener mayúscula, minúscula, número, y un carácter especial y un mínimo de 8 caracteres.
+    val regexPasswordFuerte = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$")
+
     if (nombre.isBlank() || apellidos.isBlank() || ciudad.isBlank() || provincia.isBlank()) {
         return ValidacionUsuario(false, "Todos los campos son obligatorios")
+    }
+
+    if (!regexTexto.matches(nombre)) {
+        return ValidacionUsuario(false, "El nombre contiene caracteres inválidos")
+    }
+
+    if (!regexTexto.matches(apellidos)) {
+        return ValidacionUsuario(false, "Los apellidos contienen caracteres inválidos")
+    }
+
+    if (!regexTexto.matches(ciudad)) {
+        return ValidacionUsuario(false, "La ciudad contiene caracteres inválidos")
+    }
+
+    if (!regexTexto.matches(provincia)) {
+        return ValidacionUsuario(false, "La provincia contiene caracteres inválidos")
     }
 
     if (codigoPostal.length != 5 || !codigoPostal.all { it.isDigit() }) {
@@ -26,9 +46,10 @@ fun validarCamposUsuario(
         return ValidacionUsuario(false, "El teléfono debe tener 9 dígitos")
     }
 
-    if (!password.isNullOrBlank() && password.length < 6) {
-        return ValidacionUsuario(false, "La contraseña debe tener al menos 6 caracteres")
+    if (!password.isNullOrBlank() && !regexPasswordFuerte.matches(password)) {
+        return ValidacionUsuario(false, "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo")
     }
+
 
     return ValidacionUsuario(true)
 }

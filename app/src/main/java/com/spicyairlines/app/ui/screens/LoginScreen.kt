@@ -48,6 +48,8 @@ fun LoginScreen(
                 )
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
+
             PasswordTextFieldConCheckbox(
                 password = password,
                 onPasswordChange = { viewModel.onPasswordChange(it) }

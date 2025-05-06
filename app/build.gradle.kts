@@ -66,8 +66,8 @@ dependencies {
 
     // Firebase - Se asegura que BOM esté antes que las demás dependencias
     implementation(platform(libs.firebase.bom)) // Firebase BOM
-    implementation(libs.firebase.firestore) // Firestore
-    implementation(libs.firebase.auth)
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.navigation.runtime.android)
     implementation(libs.androidx.navigation.compose)

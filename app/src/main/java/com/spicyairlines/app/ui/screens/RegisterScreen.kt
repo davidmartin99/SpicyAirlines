@@ -2,7 +2,6 @@ package com.spicyairlines.app.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,7 +14,6 @@ import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.ui.components.PasswordTextFieldConCheckbox
 import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import com.spicyairlines.app.viewmodel.RegisterViewModel
-import com.spicyairlines.app.utils.validarCamposUsuario
 
 @Composable
 fun RegisterScreen(
@@ -23,6 +21,7 @@ fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
     onBack: () -> Unit
 ) {
+    // Valores de los campos
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val nombre by viewModel.nombre.collectAsState()
@@ -31,7 +30,17 @@ fun RegisterScreen(
     val provincia by viewModel.provincia.collectAsState()
     val codigoPostal by viewModel.codigoPostal.collectAsState()
     val telefono by viewModel.telefono.collectAsState()
+
+    // Errores individuales
     val error by viewModel.error.collectAsState()
+    val errorNombre by viewModel.errorNombre.collectAsState()
+    val errorApellidos by viewModel.errorApellidos.collectAsState()
+    val errorCiudad by viewModel.errorCiudad.collectAsState()
+    val errorProvincia by viewModel.errorProvincia.collectAsState()
+    val errorCodigoPostal by viewModel.errorCodigoPostal.collectAsState()
+    val errorTelefono by viewModel.errorTelefono.collectAsState()
+    val errorPassword by viewModel.errorPassword.collectAsState()
+    val nivelContrasena by viewModel.nivelContrasena.collectAsState()
 
     BasePantalla(onBack = onBack) {
         LazyColumn(
@@ -66,6 +75,31 @@ fun RegisterScreen(
                     password = password,
                     onPasswordChange = { viewModel.onPasswordChange(it) }
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (password.isNotBlank()) {
+                    LinearProgressIndicator(
+                        progress = { nivelContrasena.valor },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp),
+                        color = nivelContrasena.color
+                    )
+
+                    Text(
+                        text = "Seguridad: ${nivelContrasena.descripcion}",
+                        color = nivelContrasena.color,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    errorPassword?.let {
+                        MensajeErrorConIcono(mensaje = it)
+                    }
+                }
+
             }
 
             item { Divider(modifier = Modifier.padding(vertical = 8.dp)) }
@@ -81,6 +115,7 @@ fun RegisterScreen(
                     label = { Text("Nombre") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                errorNombre?.let { MensajeErrorConIcono(mensaje = it) }
             }
 
             item {
@@ -90,6 +125,7 @@ fun RegisterScreen(
                     label = { Text("Apellidos") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                errorApellidos?.let { MensajeErrorConIcono(mensaje = it) }
             }
 
             item { Divider(modifier = Modifier.padding(vertical = 8.dp)) }
@@ -105,6 +141,7 @@ fun RegisterScreen(
                     label = { Text("Ciudad") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                errorCiudad?.let { MensajeErrorConIcono(mensaje = it) }
             }
 
             item {
@@ -114,6 +151,7 @@ fun RegisterScreen(
                     label = { Text("Provincia") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                errorProvincia?.let { MensajeErrorConIcono(mensaje = it) }
             }
 
             item {
@@ -124,6 +162,7 @@ fun RegisterScreen(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
+                errorCodigoPostal?.let { MensajeErrorConIcono(mensaje = it) }
             }
 
             item {
@@ -134,6 +173,7 @@ fun RegisterScreen(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                 )
+                errorTelefono?.let { MensajeErrorConIcono(mensaje = it) }
             }
 
             item {
@@ -146,21 +186,6 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
-                        val resultado = validarCamposUsuario(
-                            nombre = nombre,
-                            apellidos = apellidos,
-                            ciudad = ciudad,
-                            provincia = provincia,
-                            codigoPostal = codigoPostal,
-                            telefono = telefono,
-                            password = password
-                        )
-
-                        if (!resultado.esValido) {
-                            viewModel.setError(resultado.mensajeError ?: "Error de validación")
-                            return@Button
-                        }
-
                         viewModel.register(onSuccess = onRegisterSuccess)
                     },
                     modifier = Modifier
