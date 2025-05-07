@@ -48,6 +48,16 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    testOptions {
+        unitTests.all {
+            it.useJUnit {
+                includeCategories("your.package.TestCategory")
+            }
+            it.jvmArgs("-noverify", "-XX:TieredStopAtLevel=1")
+        }
+    }
+
+
 }
 
 dependencies {
@@ -73,16 +83,28 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.foundation.android) // Firebase Authentication
 
-    // Dependencias de prueba
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    // Dependencias de pruebas (Unit Testing)
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:4.11.0")
+    testImplementation("org.mockito:mockito-inline:4.11.0") // Permite mockear clases finales
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+    testImplementation("net.bytebuddy:byte-buddy:1.14.0")
 
+    // Dependencias de pruebas instrumentadas (UI y Android Tests)
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.1")
+    androidTestImplementation("androidx.test:core:1.5.0")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("org.mockito:mockito-android:4.11.0")
+    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1") // Para intents
 
+    // Debug (solo para herramientas de desarrollo y pruebas visuales)
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
 
 // Asegurarse de aplicar el plugin de Google Services

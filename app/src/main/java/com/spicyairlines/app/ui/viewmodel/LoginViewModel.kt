@@ -2,17 +2,15 @@ package com.spicyairlines.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.spicyairlines.app.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class LoginViewModel : ViewModel() {
-
-    private val auth = FirebaseAuth.getInstance()
-    private val firestore = FirebaseFirestore.getInstance()
+class LoginViewModel(
+    var auth: FirebaseAuth = FirebaseAuth.getInstance(),
+    var firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+) : ViewModel() {
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
@@ -37,7 +35,7 @@ class LoginViewModel : ViewModel() {
         _password.value = newPassword
     }
 
-    fun login(email: String, password: String, onSuccess: () -> Unit) {
+    fun login(email: String, password: String, onSuccess: () -> Unit = {}) {
         _error.value = null
         _isLoading.value = true
 
@@ -51,12 +49,11 @@ class LoginViewModel : ViewModel() {
                     _error.value = "No se pudo obtener el ID del usuario."
                 }
             }
-            .addOnFailureListener { exception ->
+            .addOnFailureListener {
                 _isLoading.value = false
                 _error.value = "Correo o contraseña incorrectos."
             }
     }
-
 
     private fun cargarUsuarioDesdeFirestore(uid: String, onSuccess: () -> Unit) {
         firestore.collection("usuarios").document(uid).get()
