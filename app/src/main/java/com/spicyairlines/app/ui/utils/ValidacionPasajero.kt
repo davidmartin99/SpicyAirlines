@@ -17,7 +17,7 @@ fun validarPasajero(pasajero: Pasajero): ValidacionPasajero {
         return ValidacionPasajero(false, "Apellidos inválidos")
     }
 
-    val pasaporteRegex = Regex("^[A-Z]{3}\\d{6}[A-Z0-9]\$")
+    val pasaporteRegex = Regex("^[A-Z]{3}\\d{6}$")
     if (!pasaporteRegex.matches(pasajero.numeroPasaporte)) {
         return ValidacionPasajero(false, "Número de pasaporte inválido")
     }

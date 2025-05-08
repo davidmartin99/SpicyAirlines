@@ -1,12 +1,10 @@
 package com.spicyairlines.app.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -19,6 +17,7 @@ import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import com.spicyairlines.app.ui.utils.DatePickerPasajero
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.utils.edadesSonValidas
+import com.spicyairlines.app.utils.validarPasajero
 
 @Composable
 fun DatosPasajerosScreen(
@@ -35,9 +34,7 @@ fun DatosPasajerosScreen(
     }
 
     val pasajeros by viewModel.pasajeros.collectAsState()
-
-    var mostrarErrorCamposVacios by rememberSaveable { mutableStateOf(false) }
-    var mostrarErrorEdad by rememberSaveable { mutableStateOf(false) }
+    val errores by viewModel.errores.collectAsState()
 
     BasePantalla(onBack = onBack, onPerfilClick = onPerfilClick) {
         Column(
@@ -49,95 +46,73 @@ fun DatosPasajerosScreen(
         ) {
             pasajeros.forEachIndexed { index, pasajero ->
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.id_card),
-                            contentDescription = "Pasajero",
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Pasajero ${index + 1}", style = MaterialTheme.typography.titleMedium)
-                    }
+                    Text("Pasajero ${index + 1}", style = MaterialTheme.typography.titleMedium)
 
+                    // Nombre
                     OutlinedTextField(
                         value = pasajero.nombre,
                         onValueChange = { viewModel.actualizarCampo(index, "nombre", it) },
                         label = { Text("Nombre") },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    if (errores.getOrNull(index)?.contains("Nombre") == true) {
+                        MensajeErrorConIcono(errores[index] ?: "")
+                    }
 
+                    // Apellidos
                     OutlinedTextField(
                         value = pasajero.apellidos,
                         onValueChange = { viewModel.actualizarCampo(index, "apellidos", it) },
                         label = { Text("Apellidos") },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    if (errores.getOrNull(index)?.contains("Apellidos") == true) {
+                        MensajeErrorConIcono(errores[index] ?: "")
+                    }
 
+                    // Fecha de nacimiento
                     DatePickerPasajero(
                         label = "Fecha de nacimiento",
                         initialDate = pasajero.fechaNacimiento.toDate(),
                         onDateSelected = { viewModel.actualizarFechaNacimiento(index, it) }
                     )
 
+                    // Número de Pasaporte
                     OutlinedTextField(
                         value = pasajero.numeroPasaporte,
                         onValueChange = { viewModel.actualizarCampo(index, "numeroPasaporte", it) },
-                        label = { Text("Número de pasaporte") },
+                        label = { Text("Número de pasaporte (3 letras + 6 números)") },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    if (errores.getOrNull(index)?.contains("Pasaporte") == true) {
+                        MensajeErrorConIcono(errores[index] ?: "")
+                    }
 
+                    // Teléfono
                     OutlinedTextField(
                         value = pasajero.telefono,
                         onValueChange = { viewModel.actualizarCampo(index, "telefono", it) },
-                        label = { Text("Teléfono") },
+                        label = { Text("Teléfono (9 dígitos)") },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    if (errores.getOrNull(index)?.contains("Teléfono") == true) {
+                        MensajeErrorConIcono(errores[index] ?: "")
+                    }
                 }
-
                 Divider(thickness = 1.dp)
             }
 
-            if (mostrarErrorCamposVacios) {
-                MensajeErrorConIcono("Por favor, rellena todos los campos obligatorios.")
-            }
-
-            if (mostrarErrorEdad) {
-                MensajeErrorConIcono("Las fechas de nacimiento no coinciden con el número de adultos (≥3 años) y niños (<3 años) seleccionados.")
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
-                    val hayCamposVacios = pasajeros.any {
-                        it.nombre.isBlank() || it.apellidos.isBlank() ||
-                                it.numeroPasaporte.isBlank() || it.telefono.isBlank()
-                    }
-
-                    val edadesCorrectas = edadesSonValidas(
-                        pasajeros = pasajeros,
-                        adultosEsperados = sharedViewModel.adultos.value,
-                        ninosEsperados = sharedViewModel.ninos.value
-                    )
-
-                    when {
-                        hayCamposVacios -> {
-                            mostrarErrorCamposVacios = true
-                            mostrarErrorEdad = false
-                        }
-                        !edadesCorrectas -> {
-                            mostrarErrorEdad = true
-                            mostrarErrorCamposVacios = false
-                        }
-                        else -> {
-                            mostrarErrorCamposVacios = false
-                            mostrarErrorEdad = false
-                            sharedViewModel.establecerPasajeros(pasajeros)
-                            onContinuarClick()
-                        }
+                    viewModel.validarTodosLosPasajeros()
+                    if (viewModel.validarTodosLosPasajeros()) {
+                        sharedViewModel.establecerPasajeros(pasajeros)
+                        onContinuarClick()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()

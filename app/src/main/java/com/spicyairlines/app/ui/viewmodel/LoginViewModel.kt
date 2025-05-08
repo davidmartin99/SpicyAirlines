@@ -7,7 +7,7 @@ import com.spicyairlines.app.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class LoginViewModel(
+open class LoginViewModel(
     var auth: FirebaseAuth = FirebaseAuth.getInstance(),
     var firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) : ViewModel() {

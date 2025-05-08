@@ -45,19 +45,38 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += setOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE.txt",
+                "META-INF/DEPENDENCIES.txt",
+                "META-INF/LICENSE",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/LICENSE-notice.md", // Aquí añadimos el archivo problemático
+                "META-INF/LICENSE-notice",    // Aseguramos excluir cualquier variante
+                "META-INF/LICENSE*",          // Excluimos cualquier archivo de licencia duplicado
+                "META-INF/NOTICE*"
+            )
         }
     }
     testOptions {
         unitTests.all {
-            it.useJUnit {
-                includeCategories("your.package.TestCategory")
-            }
+            it.useJUnit() // Usar JUnit 4 para Unit Tests
             it.jvmArgs("-noverify", "-XX:TieredStopAtLevel=1")
         }
+
+        // Configuración para pruebas de UI y de Integración
+        managedDevices {
+            devices {
+                create<com.android.build.api.dsl.ManagedVirtualDevice>("mediumPhoneApi34") {
+                    device = "Pixel 5" // Puedes cambiar esto por "Pixel 4" o tu preferido
+                    apiLevel = 34       // Usar API 34 (la de tu emulador)
+                    systemImageSource = "aosp"
+                }
+            }
+        }
+        animationsDisabled = true // Desactivar animaciones para pruebas de UI
     }
-
-
 }
 
 dependencies {
@@ -78,29 +97,28 @@ dependencies {
     implementation(platform(libs.firebase.bom)) // Firebase BOM
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
+
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.navigation.runtime.android)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.foundation.android) // Firebase Authentication
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.junit.ktx) // Firebase Authentication
 
-    // Dependencias de pruebas (Unit Testing)
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.mockito:mockito-core:4.11.0")
-    testImplementation("org.mockito:mockito-inline:4.11.0") // Permite mockear clases finales
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
-    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    // Dependencias de pruebas (Unit Testing) con MockK y JUnit 4
+    testImplementation("io.mockk:mockk:1.13.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
-    testImplementation("net.bytebuddy:byte-buddy:1.14.0")
+    testImplementation("junit:junit:4.13.2") // JUnit 4
+    testImplementation("androidx.arch.core:core-testing:2.1.0") // LiveData testing
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.22") // Necesario para MockK
 
     // Dependencias de pruebas instrumentadas (UI y Android Tests)
+    androidTestImplementation("io.mockk:mockk-android:1.13.3")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.1")
-    androidTestImplementation("androidx.test:core:1.5.0")
     androidTestImplementation("androidx.test:runner:1.5.2")
-    androidTestImplementation("org.mockito:mockito-android:4.11.0")
-    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
-    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1") // Para intents
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
 
     // Debug (solo para herramientas de desarrollo y pruebas visuales)
     debugImplementation("androidx.compose.ui:ui-tooling")
