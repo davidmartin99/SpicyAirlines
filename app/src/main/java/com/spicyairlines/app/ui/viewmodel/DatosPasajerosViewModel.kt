@@ -2,12 +2,9 @@ package com.spicyairlines.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.FirebaseFirestore
 import com.spicyairlines.app.model.Pasajero
-import com.spicyairlines.app.utils.validarPasajero
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import java.util.*
 
 class DatosPasajerosViewModel : ViewModel() {
@@ -18,12 +15,15 @@ class DatosPasajerosViewModel : ViewModel() {
     private val _errores = MutableStateFlow<List<String?>>(emptyList())
     val errores: StateFlow<List<String?>> = _errores
 
-    private val db = FirebaseFirestore.getInstance()
+    private var adultosEsperados = 0
+    private var ninosEsperados = 0
 
-    fun inicializarFormularios(numPasajeros: Int) {
+    fun inicializarFormularios(numPasajeros: Int, adultos: Int, ninos: Int) {
         if (_pasajeros.value.isEmpty()) {
             _pasajeros.value = List(numPasajeros) { Pasajero() }
             _errores.value = List(numPasajeros) { null }
+            adultosEsperados = adultos
+            ninosEsperados = ninos
         }
     }
 
@@ -41,7 +41,6 @@ class DatosPasajerosViewModel : ViewModel() {
         }
 
         _pasajeros.value = lista
-        validarPasajeroYActualizarError(index)
     }
 
     fun actualizarFechaNacimiento(index: Int, fecha: Date) {
@@ -49,25 +48,33 @@ class DatosPasajerosViewModel : ViewModel() {
         if (index in lista.indices) {
             lista[index] = lista[index].copy(fechaNacimiento = Timestamp(fecha))
             _pasajeros.value = lista
-            validarPasajeroYActualizarError(index)
-        }
-    }
-
-    private fun validarPasajeroYActualizarError(index: Int) {
-        val pasajero = _pasajeros.value.getOrNull(index) ?: return
-        val resultado = validarPasajero(pasajero)
-
-        _errores.update { errores ->
-            errores.toMutableList().apply {
-                this[index] = if (resultado.esValido) null else resultado.mensajeError
-            }
         }
     }
 
     fun validarTodosLosPasajeros(): Boolean {
-        _pasajeros.value.forEachIndexed { index, _ ->
-            validarPasajeroYActualizarError(index)
+        val erroresList = _pasajeros.value.mapIndexed { index, pasajero ->
+            when {
+                pasajero.nombre.isBlank() -> "Error: Nombre no válido."
+                pasajero.apellidos.isBlank() -> "Error: Apellidos no válidos."
+                !Regex("^[A-Z]{3}\\d{6}\$").matches(pasajero.numeroPasaporte) -> "Error: Pasaporte debe tener 3 letras y 6 números."
+                pasajero.telefono.length != 9 || !pasajero.telefono.all { it.isDigit() } -> "Error: Teléfono debe tener 9 dígitos."
+                calcularEdad(pasajero) < 3 && index < adultosEsperados -> "Error: Edad inválida para un adulto."
+                calcularEdad(pasajero) >= 3 && index >= adultosEsperados -> "Error: Edad inválida para un niño."
+                else -> null
+            }
         }
-        return _errores.value.all { it == null }
+
+        _errores.value = erroresList
+        return erroresList.all { it == null }
+    }
+
+    private fun calcularEdad(pasajero: Pasajero): Int {
+        val hoy = Calendar.getInstance()
+        val nacimiento = Calendar.getInstance().apply {
+            time = pasajero.fechaNacimiento.toDate()
+        }
+        var edad = hoy.get(Calendar.YEAR) - nacimiento.get(Calendar.YEAR)
+        if (hoy.get(Calendar.DAY_OF_YEAR) < nacimiento.get(Calendar.DAY_OF_YEAR)) edad--
+        return edad
     }
 }

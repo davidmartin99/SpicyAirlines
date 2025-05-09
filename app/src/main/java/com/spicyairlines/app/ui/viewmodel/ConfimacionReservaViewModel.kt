@@ -42,6 +42,7 @@ class ConfirmacionReservaViewModel : ViewModel() {
         }
 
         val reserva = Reserva(
+            id = "",
             idUsuario = uid,
             vuelos = vueloIds,
             clase = clase,
@@ -55,10 +56,20 @@ class ConfirmacionReservaViewModel : ViewModel() {
         db.collection("reservas")
             .add(reserva)
             .addOnSuccessListener { docRef ->
+                val reservaId = docRef.id // ✅ ID generado automáticamente
                 val reservaRef = db.collection("reservas").document(docRef.id)
-                val tareas = pasajeros.map { reservaRef.collection("pasajeros").add(it) }
+                val batch = db.batch()
 
-                Tasks.whenAllComplete(tareas)
+                // ✅ Guardar cada pasajero con ID único generado automáticamente
+                pasajeros.forEach { pasajero ->
+                    val pasajeroRef = reservaRef.collection("pasajeros").document() // Genera ID único
+                    val pasajeroConId = pasajero.copy(id = pasajeroRef.id) // Asigna el ID generado al pasajero
+                    batch.set(pasajeroRef, pasajeroConId)
+                }
+
+                batch.update(reservaRef, "id", reservaId)
+
+                batch.commit()
                     .addOnSuccessListener {
                         actualizarAsientos(vueloIda, clase, pasajeros.size, onFailure)
                         vueloVuelta?.let {
