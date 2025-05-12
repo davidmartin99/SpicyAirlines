@@ -21,27 +21,17 @@ fun DatePickerPasajero(
     val maxYear = today.get(Calendar.YEAR)
 
     var selectedYear by remember { mutableStateOf(calendar.get(Calendar.YEAR)) }
-    var selectedMonth by remember { mutableStateOf(calendar.get(Calendar.MONTH)) } // 0-based
+    var selectedMonth by remember { mutableStateOf(calendar.get(Calendar.MONTH)) }
     var selectedDay by remember { mutableStateOf(calendar.get(Calendar.DAY_OF_MONTH)) }
 
-    val months = (1..12).map { String.format("%02d", it) } // "01" to "12"
-
-    val daysInMonth = remember(selectedYear, selectedMonth) {
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.YEAR, selectedYear)
-        cal.set(Calendar.MONTH, selectedMonth)
-        cal.set(Calendar.DAY_OF_MONTH, 1)
-        cal.getActualMaximum(Calendar.DAY_OF_MONTH)
-    }
-
+    // Rango de años
     val years = (minYear..maxYear).toList().reversed()
-    val days = (1..daysInMonth).map { it.toString().padStart(2, '0') }
 
+    // Actualizamos el calendario según los valores seleccionados
     LaunchedEffect(selectedYear, selectedMonth, selectedDay) {
-        val cal = Calendar.getInstance()
-        cal.set(selectedYear, selectedMonth, selectedDay, 0, 0, 0)
-        if (cal.time <= today.time) {
-            onDateSelected(cal.time)
+        calendar.set(selectedYear, selectedMonth, selectedDay, 0, 0, 0)
+        if (calendar.time <= today.time) {
+            onDateSelected(calendar.time)
         }
     }
 
@@ -63,16 +53,24 @@ fun DatePickerPasajero(
                 modifier = Modifier.weight(1f)
             )
 
-            // Mes (en números)
+            // Mes (en texto)
             DropdownSelector(
                 label = "Mes",
-                items = months,
+                items = (1..12).map { String.format("%02d", it) },
                 selectedItem = String.format("%02d", selectedMonth + 1),
                 onItemSelected = { selectedMonth = it.toInt() - 1 },
                 modifier = Modifier.weight(1f)
             )
 
-            // Día
+            // Días del mes (ajustados)
+            val daysInMonth = remember(selectedYear, selectedMonth) {
+                calendar.set(Calendar.YEAR, selectedYear)
+                calendar.set(Calendar.MONTH, selectedMonth)
+                calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            }
+
+            val days = (1..daysInMonth).map { it.toString().padStart(2, '0') }
+
             DropdownSelector(
                 label = "Día",
                 items = days,

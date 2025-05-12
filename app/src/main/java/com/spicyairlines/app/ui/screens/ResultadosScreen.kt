@@ -149,7 +149,7 @@ fun VueloCard(vuelo: Vuelo, sharedViewModel: SharedViewModel, onClick: () -> Uni
     var isPressed by remember { mutableStateOf(false) }
     val elevation by animateDpAsState(targetValue = if (isPressed) 10.dp else 6.dp)
     val backgroundColor by animateColorAsState(
-        targetValue = if (isPressed) Color(0xFFE1F5FE) else colorPorTemporada(vuelo.temporada)
+        targetValue = if (isPressed) Color(0xFFECB523) else colorPorTemporada(vuelo.temporada)
     )
 
     Card(
@@ -196,7 +196,7 @@ fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, sharedViewModel: SharedViewMod
     var isPressed by remember { mutableStateOf(false) }
     val elevation by animateDpAsState(targetValue = if (isPressed) 10.dp else 6.dp)
     val backgroundColor by animateColorAsState(
-        targetValue = if (isPressed) Color(0xFFE1F5FE) else colorPorTemporada(ida.temporada)
+        targetValue = if (isPressed) Color(0xFFECB523) else colorPorTemporada(ida.temporada)
     )
 
     Card(

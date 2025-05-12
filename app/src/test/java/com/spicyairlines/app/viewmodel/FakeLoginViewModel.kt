@@ -1,5 +1,5 @@
 // src/androidTest/java/com/spicyairlines/app/screens/FakeLoginViewModel.kt
-package com.spicyairlines.app.screens
+package com.spicyairlines.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

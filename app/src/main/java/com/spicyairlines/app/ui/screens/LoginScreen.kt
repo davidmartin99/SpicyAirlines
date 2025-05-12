@@ -10,13 +10,12 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spicyairlines.app.components.BasePantalla
-import com.spicyairlines.app.viewmodel.LoginViewModel
 import com.spicyairlines.app.ui.components.PasswordTextFieldConCheckbox
 import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel(),
+    viewModel: com.spicyairlines.app.viewmodel.LoginViewModel = viewModel(),
     onLoginSuccess: () -> Unit,
     onBack: () -> Unit
 ) {

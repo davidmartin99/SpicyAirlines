@@ -70,7 +70,7 @@ class LoginViewModelTest {
 
         every { documentSnapshot.toObject(Usuario::class.java) } returns usuario
 
-        // Ejecutar el login
+        // EjecutarA el login
         viewModel.login("hola22@gmail.com", "123456") {}
 
         // Verificar que se cargó correctamente el usuario
