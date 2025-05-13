@@ -16,6 +16,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 val navController = rememberNavController()
+
                 val sharedViewModel: SharedViewModel = viewModel()
 
                 // Llamamos al NavGraph y le pasamos el ViewModel compartido

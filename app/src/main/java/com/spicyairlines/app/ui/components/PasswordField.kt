@@ -11,12 +11,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 
+// Composable reutilizable para el campo contraseña
 @Composable
 fun PasswordTextFieldConCheckbox(
     password: String,
     onPasswordChange: (String) -> Unit
 ) {
-    var mostrarContrasena by remember { mutableStateOf(false) }
+    var mostrarContrasena by remember { mutableStateOf(false) } // Para mostrar en pantalla la contraseña o no
     val focusManager = LocalFocusManager.current
 
     Column {
@@ -25,7 +26,10 @@ fun PasswordTextFieldConCheckbox(
             onValueChange = onPasswordChange,
             label = { Text("Contraseña") },
             modifier = Modifier.fillMaxWidth(),
-            visualTransformation = if (mostrarContrasena) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (mostrarContrasena)
+                VisualTransformation.None
+            else PasswordVisualTransformation(), // Mostrar texto como oculto '******'
+
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done

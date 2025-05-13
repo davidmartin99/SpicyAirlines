@@ -5,7 +5,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -14,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.example.compose.AppTheme
 import com.spicyairlines.app.R
 
+// Composable que vamos a reutilizar como plantilla para las pantallas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BasePantalla(
@@ -83,6 +83,7 @@ fun BasePantalla(
                 .padding(padding),
             color = MaterialTheme.colorScheme.background
         ) {
+            // Contenido de cada pantalla
             content(padding)
         }
     }
@@ -94,8 +95,8 @@ fun BasePantalla(
 fun BasePantallaPreview() {
     AppTheme {
         BasePantalla(
-            onBack = { /* acción volver */ },
-            onPerfilClick = { /* acción de ir al perfil */ }
+            onBack = { /* acción volver atrás */ },
+            onPerfilClick = { /* acción de ir al perfil*/ }
         ) { padding ->
             Column(
                 modifier = Modifier

@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Icon
 import com.spicyairlines.app.R
 
+// Composable reutilizable para mostrar diferentes errores
 @Composable
 fun MensajeErrorConIcono(mensaje: String) {
     Row(
