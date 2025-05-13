@@ -1,4 +1,3 @@
-// FakeResultadosViewModel.kt
 package com.spicyairlines.app.viewmodel
 
 import androidx.lifecycle.ViewModel

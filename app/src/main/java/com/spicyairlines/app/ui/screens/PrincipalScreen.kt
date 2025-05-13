@@ -12,14 +12,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.components.DatePickerFirebase
-import com.spicyairlines.app.viewmodel.InicioViewModel
+import com.spicyairlines.app.viewmodel.PrincipalViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
-import java.util.*
 
 @Composable
-fun InicioScreen(
-    viewModel: InicioViewModel = viewModel(),
+fun PrincipalScreen(
+    viewModel: PrincipalViewModel = viewModel(),
     resultadosViewModel: ResultadosViewModel = viewModel(),
     sharedViewModel: SharedViewModel = viewModel(),
     onBuscarClick: () -> Unit,
@@ -116,7 +115,7 @@ fun InicioScreen(
 }
 
 @Composable
-fun CheckboxSoloIda(viewModel: InicioViewModel) {
+fun CheckboxSoloIda(viewModel: PrincipalViewModel) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()

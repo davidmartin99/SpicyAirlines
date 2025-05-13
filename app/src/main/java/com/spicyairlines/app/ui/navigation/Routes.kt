@@ -4,7 +4,7 @@ sealed class Screen(val route: String) {
     object AuthInicio : Screen("authInicio")
     object Login : Screen("login")
     object Register : Screen("register")
-    object Inicio : Screen("inicio")
+    object Princiapl : Screen("principal")
     object Resultados : Screen("resultados")
     object VueloSeleccionado : Screen("vueloSeleccionado")
     object DatosPasajeros : Screen("datosPasajeros")

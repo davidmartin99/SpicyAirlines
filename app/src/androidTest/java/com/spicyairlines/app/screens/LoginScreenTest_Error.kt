@@ -1,5 +1,3 @@
-// LoginScreenTest_ErrorHandling.kt
-
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -12,11 +10,8 @@ import org.junit.runner.RunWith
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.spicyairlines.app.screens.LoginScreen
-import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
 
 @RunWith(AndroidJUnit4::class)
 class LoginScreenTest_Error {

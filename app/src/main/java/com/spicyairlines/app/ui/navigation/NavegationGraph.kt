@@ -31,7 +31,7 @@ fun NavigationGraph(
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = {
-                    navController.navigate(Screen.Inicio.route) {
+                    navController.navigate(Screen.Princiapl.route) {
                         popUpTo(Screen.AuthInicio.route) { inclusive = true }
                     }
                 },
@@ -42,7 +42,7 @@ fun NavigationGraph(
         composable(Screen.Register.route) {
             RegisterScreen(
                 onRegisterSuccess = {
-                    navController.navigate(Screen.Inicio.route) {
+                    navController.navigate(Screen.Princiapl.route) {
                         popUpTo(Screen.AuthInicio.route) { inclusive = true }
                     }
                 },
@@ -51,8 +51,8 @@ fun NavigationGraph(
         }
 
         // --- INICIO Y RESULTADOS ---
-        composable(Screen.Inicio.route) {
-            InicioScreen(
+        composable(Screen.Princiapl.route) {
+            PrincipalScreen(
                 sharedViewModel = sharedViewModel,
                 resultadosViewModel = resultadosViewModel,
                 onBuscarClick = { navController.navigate(Screen.Resultados.route) },
@@ -101,8 +101,8 @@ fun NavigationGraph(
         composable(Screen.PagoCompletado.route) {
             PagoCompletadoScreen(
                 onVolverInicio = {
-                    navController.navigate(Screen.Inicio.route) {
-                        popUpTo(Screen.Inicio.route) { inclusive = true }
+                    navController.navigate(Screen.Princiapl.route) {
+                        popUpTo(Screen.Princiapl.route) { inclusive = true }
                     }
                 }
             )
@@ -114,7 +114,7 @@ fun NavigationGraph(
                 navController = navController,
                 onCerrarSesion = {
                     navController.navigate(Screen.AuthInicio.route) {
-                        popUpTo(Screen.Inicio.route) { inclusive = true }
+                        popUpTo(Screen.Princiapl.route) { inclusive = true }
                     }
                 },
                 onBack = { navController.popBackStack() },

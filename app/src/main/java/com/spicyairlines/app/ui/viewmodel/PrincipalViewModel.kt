@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Timestamp
 
-open class InicioViewModel : ViewModel() {
+open class PrincipalViewModel : ViewModel() {
     var ciudadOrigen = mutableStateOf("")
     var ciudadDestino = mutableStateOf("")
     var fechaIda = mutableStateOf<Timestamp?>(null)
