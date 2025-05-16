@@ -15,16 +15,18 @@ import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import java.text.SimpleDateFormat
 import java.util.*
 
+// Composable para seleccionar fechas (ida y vuelta) utilizando DatePickerDialog
 @Composable
 fun DatePickerFirebase(
-    soloIda: Boolean,
-    fechaIda: Timestamp?,
-    fechaVuelta: Timestamp?,
-    onFechasSeleccionadas: (Timestamp, Timestamp?) -> Unit
+    soloIda: Boolean, // Indica si es un vuelo solo de ida
+    fechaIda: Timestamp?, // Fecha de ida seleccionada
+    fechaVuelta: Timestamp?, // Fecha de vuelta seleccionada (si aplica)
+    onFechasSeleccionadas: (Timestamp, Timestamp?) -> Unit // Callback para devolver las fechas seleccionadas
 ) {
     val context = LocalContext.current
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
+    // Texto del botón que muestra las fechas seleccionadas
     var textoBoton by remember {
         mutableStateOf(
             when {
@@ -36,18 +38,20 @@ fun DatePickerFirebase(
         )
     }
 
+    // Variable para manejar mensajes de error
     var error by remember { mutableStateOf<String?>(null) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        // Botón para seleccionar fechas
         Button(
             onClick = {
-                if (soloIda) {
+                if (soloIda) { // Si es solo ida
                     showDatePicker(context) { ida ->
                         textoBoton = "Ida: ${dateFormat.format(ida)}"
                         error = null
                         onFechasSeleccionadas(Timestamp(ida), null)
                     }
-                } else {
+                } else { // Si es ida y vuelta
                     showDatePicker(context) { ida ->
                         showDatePicker(context, minDate = ida.time + 2 * 86400000) { vuelta ->
                             val dias = (vuelta.time - ida.time) / (1000 * 60 * 60 * 24)
@@ -73,6 +77,7 @@ fun DatePickerFirebase(
             Text(textoBoton)
         }
 
+        // Muestra mensaje de error si existe
         error?.let {
             Spacer(modifier = Modifier.height(8.dp))
             MensajeErrorConIcono(mensaje = it)
@@ -80,6 +85,7 @@ fun DatePickerFirebase(
     }
 }
 
+// Función auxiliar para mostrar el DatePickerDialog
 private fun showDatePicker(
     context: Context,
     minDate: Long? = null,
@@ -97,6 +103,7 @@ private fun showDatePicker(
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH)
     )
+    // Establece la fecha mínima
     minDate?.let { dialog.datePicker.minDate = it }
     dialog.show()
 }

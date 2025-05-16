@@ -15,13 +15,14 @@ import com.spicyairlines.app.ui.components.PasswordTextFieldConCheckbox
 import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import com.spicyairlines.app.viewmodel.RegisterViewModel
 
+// Pantalla de Registro de Usuario
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel = viewModel(),
     onRegisterSuccess: () -> Unit,
     onBack: () -> Unit
 ) {
-    // Valores de los campos
+    // Variables de estado obtenidas del ViewModel
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val nombre by viewModel.nombre.collectAsState()
@@ -58,6 +59,7 @@ fun RegisterScreen(
             }
 
             item {
+                // Campo de correo electrónico
                 OutlinedTextField(
                     value = email,
                     onValueChange = { viewModel.onEmailChange(it) },
@@ -71,6 +73,7 @@ fun RegisterScreen(
             }
 
             item {
+                // Campo de contraseña con indicador de seguridad
                 PasswordTextFieldConCheckbox(
                     password = password,
                     onPasswordChange = { viewModel.onPasswordChange(it) }
@@ -78,6 +81,7 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Indicador de nivel de seguridad
                 if (password.isNotBlank()) {
                     LinearProgressIndicator(
                         progress = { nivelContrasena.valor },
@@ -104,6 +108,7 @@ fun RegisterScreen(
 
             item { Divider(modifier = Modifier.padding(vertical = 8.dp)) }
 
+            // Datos personales
             item {
                 Text(text = "Datos personales", style = MaterialTheme.typography.titleMedium)
             }
@@ -130,6 +135,7 @@ fun RegisterScreen(
 
             item { Divider(modifier = Modifier.padding(vertical = 8.dp)) }
 
+            // Dirección
             item {
                 Text(text = "Dirección de contacto", style = MaterialTheme.typography.titleMedium)
             }
@@ -182,6 +188,7 @@ fun RegisterScreen(
                 }
             }
 
+            // Botón de registro
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(

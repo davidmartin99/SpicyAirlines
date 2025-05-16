@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import com.example.compose.AppTheme
 import com.spicyairlines.app.R
 
+// Pantalla de Inicio de Autenticación (Login y Registro)
 @Composable
 fun PantallaInicioAuth(
     onLoginClick: () -> Unit,
@@ -25,6 +26,7 @@ fun PantallaInicioAuth(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface
     ) {
+        // Caja central con borde y fondo
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -49,16 +51,17 @@ fun PantallaInicioAuth(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // Logo de la aplicación
                     Icon(
                         painter = painterResource(id = R.drawable.logo_spicyairlines_2),
-                        contentDescription = "Logo SpicyAirlines",
+                        contentDescription = "Logo Spicy Airlines",
                         modifier = Modifier
                             .height(220.dp)
                             .padding(bottom = 12.dp),
                         tint = Color.Unspecified // <- MUY IMPORTANTE para mantener los colores originales del SVG
                     )
 
-                    // TEXTO de bienvenida
+                    // Texto de bienvenida
                     Text(
                         text = "¡Explora los cielos de China con nosotros!",
                         style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
@@ -67,7 +70,7 @@ fun PantallaInicioAuth(
                         modifier = Modifier.padding(bottom = 32.dp)
                     )
 
-                    // BOTÓN Iniciar sesión
+                    // Botón de Iniciar sesión
                     Button(
                         onClick = onLoginClick,
                         modifier = Modifier.fillMaxWidth()
@@ -77,7 +80,7 @@ fun PantallaInicioAuth(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // BOTÓN Registrarse
+                    // Botón de Registrarse
                     OutlinedButton(
                         onClick = onRegisterClick,
                         modifier = Modifier.fillMaxWidth(),
@@ -94,6 +97,7 @@ fun PantallaInicioAuth(
     }
 }
 
+// Vista previa para diseño
 @Preview(showBackground = true)
 @Composable
 fun PantallaInicioAuthPreview() {

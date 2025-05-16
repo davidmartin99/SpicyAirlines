@@ -19,6 +19,7 @@ import com.spicyairlines.app.viewmodel.PerfilViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
+// Pantalla de Perfil del Usuario
 @Composable
 fun PerfilScreen(
     navController: NavController,
@@ -27,11 +28,13 @@ fun PerfilScreen(
     onBack: () -> Unit,
     onEditarPerfil: () -> Unit
 ) {
+    // Variables de estado
     val reservas by viewModel.reservas.collectAsState()
     val auth = FirebaseAuth.getInstance()
     val expandedMap = remember { mutableStateMapOf<String, Boolean>() }
     var showDropdown by remember { mutableStateOf(false) }
 
+    // Cargar las reservas del usuario al iniciar
     LaunchedEffect(Unit) {
         viewModel.cargarReservasUsuario()
     }
@@ -46,6 +49,7 @@ fun PerfilScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
+            // Botones de acción
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -66,9 +70,11 @@ fun PerfilScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Listado de reservas
             if (showDropdown) {
                 if (reservas.isEmpty()) {
                     Spacer(modifier = Modifier.height(32.dp))
+                    // Mensaje si no hay reservas
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -125,11 +131,13 @@ fun PerfilScreen(
     }
 }
 
+// Composable para mostrar el resumen de una reserva
 @Composable
 fun ReservaResumen(
     reservasConVuelos: List<ReservaConVuelo>,
     onEditarPasajeros: () -> Unit
 ) {
+    // Formatos para mostrar fecha y hora
     val formatoFecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     val formatoHora = SimpleDateFormat("HH:mm", Locale.getDefault())
 
@@ -138,6 +146,7 @@ fun ReservaResumen(
     val menores = reserva.menores
     val totalPasajeros = adultos + menores
 
+    // Tarjeta (Card) para mostrar el resumen
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -145,6 +154,7 @@ fun ReservaResumen(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Muestra los detalles de cada vuelo (ida y vuelta)
             reservasConVuelos.forEachIndexed { index, reservaConVuelo ->
                 val vuelo = reservaConVuelo.vuelo
                 Text(
@@ -158,6 +168,7 @@ fun ReservaResumen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
+            // Información general de la reserva
             Text("Clase: ${reserva.clase}")
             Text("Pasajeros: $totalPasajeros ($adultos adulto(s), $menores menor(es))")
             Text("Precio total: ${reserva.precioTotal}€")

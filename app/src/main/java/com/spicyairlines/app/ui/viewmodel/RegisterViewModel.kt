@@ -6,11 +6,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.spicyairlines.app.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import androidx.compose.ui.graphics.Color
 import com.spicyairlines.app.ui.utils.NivelSeguridadContrasena
 
+// ViewModel para gestionar el registro de nuevos usuarios
 class RegisterViewModel : ViewModel() {
 
+    // Instancias de Firebase para autenticación y base de datos
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
@@ -67,8 +68,7 @@ class RegisterViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    // ======= Funciones de actualización y validación =======
-
+    // Funciones de actualización y validación
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
     }
@@ -114,6 +114,7 @@ class RegisterViewModel : ViewModel() {
         else "Teléfono inválido"
     }
 
+    // Función para validar la seguridad de la contraseña
     fun validarPassword() {
         val password = _password.value
 
@@ -142,11 +143,7 @@ class RegisterViewModel : ViewModel() {
         }
     }
 
-
-
-
-    // ======= Registro con Firebase =======
-
+    // Registro con Firebase
     fun register(onSuccess: () -> Unit) {
         _error.value = null
 
@@ -165,6 +162,7 @@ class RegisterViewModel : ViewModel() {
             return
         }
 
+        // Intento de registro en Firebase Authentication
         auth.createUserWithEmailAndPassword(_email.value, _password.value)
             .addOnSuccessListener { authResult ->
                 val uid = authResult.user?.uid
@@ -179,6 +177,7 @@ class RegisterViewModel : ViewModel() {
                         telefono = _telefono.value
                     )
 
+                    // Guardar usuario en Firestore
                     firestore.collection("usuarios")
                         .document(uid)
                         .set(usuario)

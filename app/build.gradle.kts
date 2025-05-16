@@ -43,6 +43,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+    // Exclusión de los archivos duplicados (solución a errores comunes)
     packaging {
         resources {
             excludes += setOf(

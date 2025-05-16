@@ -10,6 +10,7 @@ import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 
+// Pantalla de Resumen del Vuelo Seleccionado
 @Composable
 fun VueloSeleccionadoScreen(
     sharedViewModel: SharedViewModel,
@@ -17,6 +18,7 @@ fun VueloSeleccionadoScreen(
     onPerfilClick: () -> Unit,
     onBack: () -> Unit
 ) {
+    // Variables de estado obtenidas del SharedViewModel
     val vueloIda by sharedViewModel.vueloSeleccionado.collectAsState()
     val vueloVuelta by sharedViewModel.vueloVueltaSeleccionado.collectAsState()
     val clase by sharedViewModel.claseSeleccionada.collectAsState()
@@ -24,9 +26,11 @@ fun VueloSeleccionadoScreen(
     val adultos by sharedViewModel.adultos.collectAsState()
     val ninos by sharedViewModel.ninos.collectAsState()
 
+    // Calcula el precio total de la reserva
     val precioTotal = precioPorBillete * adultos
     sharedViewModel.actualizarPrecioTotalReserva(precioTotal)
 
+    // Variable para manejar mensajes de error
     var error by remember { mutableStateOf<String?>(null) }
 
     BasePantalla(
@@ -43,6 +47,7 @@ fun VueloSeleccionadoScreen(
                 Text("Resumen del vuelo", style = MaterialTheme.typography.titleLarge)
             }
 
+            // Muestra el vuelo seleccionado (ida o ida y vuelta)
             item {
                 vueloVuelta?.let { vuelta ->
                     VueloCombinadoCard(
@@ -62,6 +67,7 @@ fun VueloSeleccionadoScreen(
                 Divider()
             }
 
+            // Detalles del vuelo
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text("Clase seleccionada: $clase")
@@ -72,12 +78,14 @@ fun VueloSeleccionadoScreen(
                 }
             }
 
+            // Mensaje de error si existe
             item {
                 error?.let {
                     MensajeErrorConIcono(mensaje = it)
                 }
             }
 
+            // Botón para continuar
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(

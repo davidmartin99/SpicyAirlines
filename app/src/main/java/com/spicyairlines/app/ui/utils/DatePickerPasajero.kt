@@ -7,24 +7,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import java.util.*
 
+// Composable para seleccionar una fecha (Fecha de nacimiento de pasajeros)
 @Composable
 fun DatePickerPasajero(
-    label: String,
-    initialDate: Date,
-    onDateSelected: (Date) -> Unit
+    label: String, // Etiqueta para el campo
+    initialDate: Date, // Fecha inicial seleccionada
+    onDateSelected: (Date) -> Unit // Callback para manejar la fecha seleccionada
 ) {
+    // Inicialización del calendario en la fecha inicial
     val calendar = Calendar.getInstance()
     calendar.time = initialDate
 
+    // Rango permitido (140 años hacia atrás hasta el año actual)
     val today = Calendar.getInstance()
     val minYear = today.get(Calendar.YEAR) - 140
     val maxYear = today.get(Calendar.YEAR)
 
+    // Estado para manejar los valores seleccionados
     var selectedYear by remember { mutableStateOf(calendar.get(Calendar.YEAR)) }
     var selectedMonth by remember { mutableStateOf(calendar.get(Calendar.MONTH)) }
     var selectedDay by remember { mutableStateOf(calendar.get(Calendar.DAY_OF_MONTH)) }
 
-    // Rango de años
+    // Genera el rango de años
     val years = (minYear..maxYear).toList().reversed()
 
     // Actualizamos el calendario según los valores seleccionados
@@ -35,6 +39,7 @@ fun DatePickerPasajero(
         }
     }
 
+    // Interfaz gráfica del selector
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(label, style = MaterialTheme.typography.labelLarge)
 
@@ -53,7 +58,7 @@ fun DatePickerPasajero(
                 modifier = Modifier.weight(1f)
             )
 
-            // Mes (en texto)
+            // Mes
             DropdownSelector(
                 label = "Mes",
                 items = (1..12).map { String.format("%02d", it) },
@@ -82,13 +87,14 @@ fun DatePickerPasajero(
     }
 }
 
+// Composable reutilizable para un menú desplegable
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownSelector(
-    label: String,
-    items: List<String>,
-    selectedItem: String,
-    onItemSelected: (String) -> Unit,
+    label: String, // Etiqueta del selector
+    items: List<String>, // Opciones disponibles
+    selectedItem: String, // Opción seleccionada
+    onItemSelected: (String) -> Unit, // Callback para manejar la selección
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }

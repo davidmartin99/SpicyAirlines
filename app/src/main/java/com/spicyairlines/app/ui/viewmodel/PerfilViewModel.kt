@@ -11,14 +11,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+// ViewModel para gestionar las reservas del perfil del usuario
 class PerfilViewModel : ViewModel() {
 
+    // Flow que contiene las reservas del usuario (con información de los vuelos)
     private val _reservas = MutableStateFlow<List<ReservaConVuelo>>(emptyList())
     val reservas: StateFlow<List<ReservaConVuelo>> = _reservas
 
+    // Instancia de Firebase Firestore y FirebaseAuth
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // Función para cargar las reservas del usuario autenticado
     fun cargarReservasUsuario() {
         val uid = auth.currentUser?.uid ?: return
 
@@ -44,6 +48,7 @@ class PerfilViewModel : ViewModel() {
         }
     }
 
+    // Función para cargar un vuelo y agregarlo a la lista de reservas
     private fun cargarVueloYAgregar(
         reserva: Reserva,
         vueloId: String,
@@ -61,6 +66,7 @@ class PerfilViewModel : ViewModel() {
                             vuelo = vuelo
                         )
                     )
+                    // Actualiza la lista de reservas en orden descendente por fecha
                     _reservas.value = reservasTemp.sortedByDescending { it.reserva.fechaReserva }
                 }
             }

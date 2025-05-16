@@ -2,7 +2,6 @@ package com.spicyairlines.app.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,30 +20,36 @@ import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
 
+// Pantalla para Editar Pasajeros de una Reserva
 @Composable
 fun EditarPasajerosScreen(
     navController: NavController,
     reservaId: String,
     viewModel: EditarPasajerosViewModel = viewModel()
 ) {
+    // Variables de estado
     val pasajeros by viewModel.pasajeros.collectAsState()
     val vuelos by viewModel.vuelos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val cambiosGuardados by viewModel.cambiosGuardados.collectAsState()
 
+    // Para mostrar mensajes de éxito o error
     val snackbarHostState = remember { SnackbarHostState() }
     val errores = remember { mutableStateListOf<String?>() }
 
+    // Cargar pasajeros y vuelos de la reserva
     LaunchedEffect(Unit) {
         viewModel.cargarPasajeros(reservaId)
         viewModel.cargarVuelosDeReserva(reservaId)
     }
 
+    // Inicializar errores para cada pasajero
     LaunchedEffect(pasajeros) {
         errores.clear()
         errores.addAll(List(pasajeros.size) { null })
     }
 
+    // Mostrar mensaje de éxito al guardar
     LaunchedEffect(cambiosGuardados) {
         if (cambiosGuardados) {
             snackbarHostState.showSnackbar("Cambios guardados correctamente.")
@@ -57,7 +62,8 @@ fun EditarPasajerosScreen(
         onBack = { navController.popBackStack() },
         snackbarHostState = snackbarHostState
     ) { padding ->
-        if (isLoading) {
+        if (isLoading) { // Indicador de carga
+
             Box(
                 Modifier
                     .fillMaxSize()
@@ -74,6 +80,7 @@ fun EditarPasajerosScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Mostrar detalles de los vuelos asociados
                 if (vuelos.isNotEmpty()) {
                     item {
                         Card(
@@ -185,6 +192,7 @@ fun EditarPasajerosScreen(
                     }
                 }
 
+                // Botón para guardar cambios
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(

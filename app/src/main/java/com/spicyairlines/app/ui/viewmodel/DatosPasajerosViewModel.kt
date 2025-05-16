@@ -7,17 +7,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 
+// ViewModel para gestionar la información de los pasajeros
 class DatosPasajerosViewModel : ViewModel() {
 
+    // Flow para manejar la lista de pasajeros
     private val _pasajeros = MutableStateFlow<List<Pasajero>>(emptyList())
     val pasajeros: StateFlow<List<Pasajero>> = _pasajeros
 
+    // Flow para manejar los errores de validación
     private val _errores = MutableStateFlow<List<String?>>(emptyList())
     val errores: StateFlow<List<String?>> = _errores
 
+    // Variables para contar adultos y niños esperados
     private var adultosEsperados = 0
     private var ninosEsperados = 0
 
+    // Inicializa los formularios de pasajeros según la cantidad esperada
     fun inicializarFormularios(numPasajeros: Int, adultos: Int, ninos: Int) {
         if (_pasajeros.value.isEmpty()) {
             _pasajeros.value = List(numPasajeros) { Pasajero() }
@@ -27,6 +32,7 @@ class DatosPasajerosViewModel : ViewModel() {
         }
     }
 
+    // Actualiza un campo específico de un pasajero
     fun actualizarCampo(index: Int, campo: String, valor: String) {
         val lista = _pasajeros.value.toMutableList()
         if (index !in lista.indices) return
@@ -43,6 +49,7 @@ class DatosPasajerosViewModel : ViewModel() {
         _pasajeros.value = lista
     }
 
+    // Actualiza la fecha de nacimiento de un pasajero
     fun actualizarFechaNacimiento(index: Int, fecha: Date) {
         val lista = _pasajeros.value.toMutableList()
         if (index in lista.indices) {
@@ -51,6 +58,7 @@ class DatosPasajerosViewModel : ViewModel() {
         }
     }
 
+    // Valida todos los pasajeros y verifica sus datos
     fun validarTodosLosPasajeros(): Boolean {
         val erroresList = _pasajeros.value.mapIndexed { index, pasajero ->
             when {
@@ -68,6 +76,7 @@ class DatosPasajerosViewModel : ViewModel() {
         return erroresList.all { it == null }
     }
 
+    // Calcula la edad de un pasajero a partir de su fecha de nacimiento
     private fun calcularEdad(pasajero: Pasajero): Int {
         val hoy = Calendar.getInstance()
         val nacimiento = Calendar.getInstance().apply {

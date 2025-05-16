@@ -9,22 +9,28 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import java.util.*
 
+// ViewModel para gestionar la edición de pasajeros en una reserva
 class EditarPasajerosViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
 
+    // Estado para manejar la lista de pasajeros
     private val _pasajeros = MutableStateFlow<List<Pasajero>>(emptyList())
     val pasajeros: StateFlow<List<Pasajero>> = _pasajeros
 
+    // Estado para manejar la carga de datos
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    // Estado para indicar si los cambios fueron guardados correctamente
     private val _cambiosGuardados = MutableStateFlow(false)
     val cambiosGuardados: StateFlow<Boolean> = _cambiosGuardados
 
+    // Estado para manejar los vuelos asociados a la reserva
     private val _vuelos = MutableStateFlow<List<Vuelo>>(emptyList())
     val vuelos: StateFlow<List<Vuelo>> = _vuelos
 
+    // Carga los pasajeros de la reserva especificada
     fun cargarPasajeros(reservaId: String) {
         _isLoading.value = true
         db.collection("reservas").document(reservaId).collection("pasajeros")
@@ -41,6 +47,7 @@ class EditarPasajerosViewModel : ViewModel() {
             }
     }
 
+    // Carga los vuelos asociados a la reserva
     fun cargarVuelosDeReserva(reservaId: String) {
         db.collection("reservas").document(reservaId)
             .get()
@@ -61,6 +68,7 @@ class EditarPasajerosViewModel : ViewModel() {
             }
     }
 
+    // Métodos para actualizar campos específicos de un pasajero
     fun actualizarNombre(index: Int, nuevoNombre: String) {
         _pasajeros.update { lista ->
             lista.toMutableList().also { it[index] = it[index].copy(nombre = nuevoNombre) }
@@ -93,6 +101,7 @@ class EditarPasajerosViewModel : ViewModel() {
         }
     }
 
+    // Guarda los cambios realizados a los pasajeros en Firebase
     fun guardarCambios(reservaId: String) {
         _isLoading.value = true
         val batch = db.batch()

@@ -11,22 +11,29 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.spicyairlines.app.ui.utils.plusDays
 
+// ViewModel para gestionar los resultados de búsqueda de vuelos
 class ResultadosViewModel : ViewModel() {
 
+    // Instancia de Firebase Firestore
     private val db = FirebaseFirestore.getInstance()
 
+    // Estado para manejar los vuelos de ida
     private val _vuelosIda = MutableStateFlow<List<Vuelo>>(emptyList())
     val vuelosIda: StateFlow<List<Vuelo>> = _vuelosIda.asStateFlow()
 
+    // Estado para manejar los vuelos de vuelta
     private val _vuelosVuelta = MutableStateFlow<List<Vuelo>>(emptyList())
     val vuelosVuelta: StateFlow<List<Vuelo>> = _vuelosVuelta.asStateFlow()
 
+    // Estado para manejar las combinaciones válidas de ida y vuelta
     private val _combinacionesValidas = MutableStateFlow<List<Pair<Vuelo, Vuelo>>>(emptyList())
     val combinacionesValidas: StateFlow<List<Pair<Vuelo, Vuelo>>> = _combinacionesValidas.asStateFlow()
 
+    // Estado para manejar si la carga está completada
     private val _cargaCompletada = MutableStateFlow(false)
     val cargaCompletada: StateFlow<Boolean> = _cargaCompletada.asStateFlow()
 
+    // Función para cargar vuelos según los criterios de búsqueda
     fun cargarVuelos(
         origen: String,
         destino: String,
@@ -41,6 +48,7 @@ class ResultadosViewModel : ViewModel() {
         viewModelScope.launch {
             _cargaCompletada.value = false
 
+            // Carga vuelos de ida
             db.collection("Vuelos")
                 .whereEqualTo("origen", origen)
                 .whereEqualTo("destino", destino)
@@ -56,6 +64,7 @@ class ResultadosViewModel : ViewModel() {
 
                     _vuelosIda.value = vuelosIdaList
 
+                    // Si hay fecha de vuelta, carga vuelos de vuelta
                     if (fechaVuelta != null) {
                         db.collection("Vuelos")
                             .whereEqualTo("origen", destino)
@@ -99,6 +108,7 @@ class ResultadosViewModel : ViewModel() {
         }
     }
 
+    // Genera combinaciones válidas de vuelos ida y vuelta
     private fun generarCombinacionesValidas(clase: String, pasajeros: Int): List<Pair<Vuelo, Vuelo>> {
         val idaList = _vuelosIda.value
         val vueltaList = _vuelosVuelta.value
@@ -112,6 +122,7 @@ class ResultadosViewModel : ViewModel() {
         }
     }
 
+    // Verifica si un vuelo tiene suficientes asientos disponibles
     private fun vueloTieneAsientos(vuelo: Vuelo, clase: String, pasajeros: Int): Boolean {
         return when (clase) {
             "Turista" -> vuelo.asientosTurista >= pasajeros

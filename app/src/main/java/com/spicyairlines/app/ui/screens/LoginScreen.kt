@@ -13,16 +13,19 @@ import com.spicyairlines.app.components.BasePantalla
 import com.spicyairlines.app.ui.components.PasswordTextFieldConCheckbox
 import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 
+// Pantalla de Inicio de Sesión (Login)
 @Composable
 fun LoginScreen(
     viewModel: com.spicyairlines.app.viewmodel.LoginViewModel = viewModel(),
     onLoginSuccess: () -> Unit,
     onBack: () -> Unit
 ) {
+    // Variables de estado obtenidas del ViewModel
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val error by viewModel.error.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState(initial = false)
+    // Habilita el botón solo si los campos no están vacíos
     val isLoginEnabled = email.isNotBlank() && password.isNotBlank()
 
     BasePantalla(
@@ -36,6 +39,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Campo para el correo electrónico
             OutlinedTextField(
                 value = email,
                 onValueChange = { viewModel.onEmailChange(it) },
@@ -49,6 +53,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Campo de texto para la contraseña con opción de mostrar/ocultar
             PasswordTextFieldConCheckbox(
                 password = password,
                 onPasswordChange = { viewModel.onPasswordChange(it) }
@@ -59,6 +64,7 @@ fun LoginScreen(
             if (isLoading) {
                 CircularProgressIndicator()
             } else {
+                // Botón de inicio de sesión
                 Button(
                     onClick = {
                         viewModel.login(email, password, onLoginSuccess)

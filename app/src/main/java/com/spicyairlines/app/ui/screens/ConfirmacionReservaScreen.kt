@@ -1,6 +1,5 @@
 package com.spicyairlines.app.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +18,7 @@ import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.viewmodel.ConfirmacionReservaViewModel
 
+// Pantalla de Confirmación de Reserva
 @Composable
 fun ConfirmacionReservaScreen(
     sharedViewModel: SharedViewModel,
@@ -27,15 +27,18 @@ fun ConfirmacionReservaScreen(
     onPerfilClick: () -> Unit,
     onBack: () -> Unit
 ) {
+    // Variables de estado compartidas del SharedViewModel
     val vueloIda by sharedViewModel.vueloSeleccionado.collectAsState()
     val vueloVuelta by sharedViewModel.vueloVueltaSeleccionado.collectAsState()
     val clase by sharedViewModel.claseSeleccionada.collectAsState()
     val pasajeros by sharedViewModel.pasajeros.collectAsState()
     val total by sharedViewModel.precioTotal.collectAsState()
 
+    // Estados locales para control de carga y errores
     var cargando by rememberSaveable { mutableStateOf(false) }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
 
+    // Estructura de la pantalla usando BasePantalla
     BasePantalla(
         onBack = onBack,
         onPerfilClick = onPerfilClick
@@ -46,6 +49,7 @@ fun ConfirmacionReservaScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Mostrar vuelo (ida o ida y vuelta)
             item {
                 Text("Resumen de la reserva", style = MaterialTheme.typography.titleLarge)
             }
@@ -65,6 +69,7 @@ fun ConfirmacionReservaScreen(
                 )
             }
 
+            // Mostrar clase y precio total
             item {
                 Text("Clase: $clase")
                 Text("Total a pagar: $total €")
@@ -74,6 +79,7 @@ fun ConfirmacionReservaScreen(
                 Text("Pasajeros", style = MaterialTheme.typography.titleMedium)
             }
 
+            // Listar pasajeros
             items(pasajeros) { pasajero: Pasajero ->
                 Column(
                     modifier = Modifier
@@ -104,6 +110,7 @@ fun ConfirmacionReservaScreen(
                 }
             }
 
+            // Botón de Confirmar (Pagar)
             item {
                 if (cargando) {
                     Box(
@@ -139,6 +146,7 @@ fun ConfirmacionReservaScreen(
                 }
             }
 
+            // Mostrar mensaje de error (si existe)
             item {
                 error?.let {
                     MensajeErrorConIcono(mensaje = it)

@@ -16,6 +16,7 @@ import com.spicyairlines.app.viewmodel.PrincipalViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 
+// Pantalla Principal para Buscar Vuelos
 @Composable
 fun PrincipalScreen(
     viewModel: PrincipalViewModel = viewModel(),
@@ -24,6 +25,7 @@ fun PrincipalScreen(
     onBuscarClick: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
+    // Estados de error
     var errorFecha by rememberSaveable { mutableStateOf(false) }
     var errorPasajeros by rememberSaveable { mutableStateOf(false) }
 
@@ -35,6 +37,7 @@ fun PrincipalScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Titulo
             Text(
                 text = "Encuentra tu vuelo ideal",
                 style = MaterialTheme.typography.headlineSmall.copy(
@@ -45,6 +48,7 @@ fun PrincipalScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Selección de Origen y Destino
             DropdownMenuOrigen(
                 selected = viewModel.ciudadOrigen.value,
                 onSeleccion = { viewModel.ciudadOrigen.value = it }
@@ -56,6 +60,7 @@ fun PrincipalScreen(
                 ciudadOrigen = viewModel.ciudadOrigen.value
             )
 
+            // Selector de Fecha
             DatePickerFirebase(
                 soloIda = viewModel.soloIda.value,
                 fechaIda = viewModel.fechaIda.value,
@@ -66,16 +71,19 @@ fun PrincipalScreen(
                 errorFecha = false
             }
 
+            // Checkbox para "Solo ida"
             CheckboxSoloIda(viewModel)
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Selector de Viajeros y Clase
             SelectorViajerosClase(viewModel.adultos, viewModel.ninos, viewModel.clase)
 
             Spacer(modifier = Modifier.height(16.dp))
 
             MostrarErrores(errorFecha, errorPasajeros)
 
+            // Botón para Buscar
             Button(
                 onClick = {
                     val ida = viewModel.fechaIda.value
@@ -85,6 +93,7 @@ fun PrincipalScreen(
                     val totalPasajeros = adultos + ninos
                     val claseSeleccionada = viewModel.clase.value
 
+                    // Validar errores
                     errorFecha = ida != null && vuelta != null && vuelta < ida
                     errorPasajeros = totalPasajeros == 0
 
@@ -98,6 +107,7 @@ fun PrincipalScreen(
                             totalPasajeros = totalPasajeros
                         )
 
+                        // Guardar datos seleccionados en el sharedViewModel
                         sharedViewModel.seleccionarClase(claseSeleccionada)
                         sharedViewModel.establecerAdultos(adultos)
                         sharedViewModel.establecerNinos(ninos)
@@ -114,6 +124,7 @@ fun PrincipalScreen(
     }
 }
 
+// Checkbox para seleccionar si el vuelo es "Solo ida"
 @Composable
 fun CheckboxSoloIda(viewModel: PrincipalViewModel) {
     Row(
@@ -128,6 +139,7 @@ fun CheckboxSoloIda(viewModel: PrincipalViewModel) {
     }
 }
 
+// Composable para mostrar errores relacionados con fechas y pasajeros
 @Composable
 fun MostrarErrores(errorFecha: Boolean, errorPasajeros: Boolean) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -148,6 +160,7 @@ fun MostrarErrores(errorFecha: Boolean, errorPasajeros: Boolean) {
     }
 }
 
+// Selector de viajeros (adultos y niños) y clase de vuelo
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectorViajerosClase(
@@ -163,6 +176,7 @@ fun SelectorViajerosClase(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text("Clase", fontWeight = FontWeight.Medium)
+        // Menú desplegable para seleccionar clase
         ExposedDropdownMenuBox(expanded = expandedClase, onExpandedChange = { expandedClase = !expandedClase }) {
             TextField(
                 value = clase.value,
@@ -187,11 +201,13 @@ fun SelectorViajerosClase(
             }
         }
 
+        // Contadores de adultos y niños
         SelectorContador("Adultos ", adultos, minimo = 1)
         SelectorContador("Niños (menores de 3 años)", ninos, minimo = 0)
     }
 }
 
+// Contador para seleccionar número de pasajeros
 @Composable
 fun SelectorContador(label: String, contador: MutableState<Int>, minimo: Int) {
     Row(
@@ -210,6 +226,7 @@ fun SelectorContador(label: String, contador: MutableState<Int>, minimo: Int) {
     }
 }
 
+// Menú desplegable para seleccionar ciudad de origen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownMenuOrigen(
@@ -250,6 +267,7 @@ fun DropdownMenuOrigen(
     }
 }
 
+// Menú desplegable para seleccionar ciudad de destino
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownMenuDestino(

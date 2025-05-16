@@ -22,6 +22,7 @@ import com.spicyairlines.app.ui.utils.HoraUTC.formatearFechaHoraLocal
 import com.spicyairlines.app.ui.viewmodel.SharedViewModel
 import com.spicyairlines.app.viewmodel.ResultadosViewModel
 
+// Pantalla de Resultados de Vuelos
 @Composable
 fun ResultadosScreen(
     sharedViewModel: SharedViewModel,
@@ -30,17 +31,21 @@ fun ResultadosScreen(
     onBack: () -> Unit,
     onPerfilClick: () -> Unit
 ) {
+    // Variables de estado
     val vuelosIda by resultadosViewModel.vuelosIda.collectAsState()
     val vuelosVuelta by resultadosViewModel.vuelosVuelta.collectAsState()
     val combinacionesValidas by resultadosViewModel.combinacionesValidas.collectAsState()
     val cargaCompletada by resultadosViewModel.cargaCompletada.collectAsState()
 
+    // Estado para ordenar vuelos
     var ordenPrecio by remember { mutableStateOf("Menor a mayor") }
     val opcionesOrden = listOf("Menor a mayor", "Mayor a menor")
     var expanded by remember { mutableStateOf(false) }
 
+    // Estructura de la pantalla base
     BasePantalla(onBack = onBack, onPerfilClick = onPerfilClick) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Filtro de orden
             if (cargaCompletada && (vuelosIda.isNotEmpty() || combinacionesValidas.isNotEmpty())) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -54,6 +59,7 @@ fun ResultadosScreen(
                         textAlign = TextAlign.Center
                     )
 
+                    // Menú desplegable para ordenar
                     Box {
                         IconButton(onClick = { expanded = true }) {
                             Icon(
@@ -81,6 +87,7 @@ fun ResultadosScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Muestra los vuelos según el estado de carga
             when {
                 !cargaCompletada -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -136,6 +143,7 @@ fun ResultadosScreen(
     }
 }
 
+// Función para mostrar vuelos de ida
 @Composable
 fun VueloCard(vuelo: Vuelo, sharedViewModel: SharedViewModel, onClick: () -> Unit) {
     val clase by sharedViewModel.claseSeleccionada.collectAsState()
@@ -183,6 +191,7 @@ fun VueloCard(vuelo: Vuelo, sharedViewModel: SharedViewModel, onClick: () -> Uni
     }
 }
 
+// Función para mostrar combinaciones de vuelos ida y vuelta
 @Composable
 fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, sharedViewModel: SharedViewModel, onClick: () -> Unit) {
     val clase by sharedViewModel.claseSeleccionada.collectAsState()
@@ -235,6 +244,7 @@ fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, sharedViewModel: SharedViewMod
     }
 }
 
+// Composable para mostrar la información de un vuelo (origen, destino, salida, llegada)
 @Composable
 fun SectionVuelo(iconId: Int, vuelo: Vuelo) {
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -246,6 +256,7 @@ fun SectionVuelo(iconId: Int, vuelo: Vuelo) {
     InfoItem(R.drawable.reloj, "Llegada: ${formatearFechaHoraLocal(vuelo.fechaLlegada, vuelo.destino)}")
 }
 
+// Composable para mostrar un ítem de información con un icono
 @Composable
 fun InfoItem(iconId: Int, texto: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -259,16 +270,19 @@ fun InfoItem(iconId: Int, texto: String) {
     }
 }
 
+// Función para ordenar vuelos de ida según el precio
 fun ordenarVuelosIda(vuelos: List<Vuelo>, orden: String): List<Vuelo> {
     return if (orden == "Mayor a menor") vuelos.sortedByDescending { it.precioBase }
     else vuelos.sortedBy { it.precioBase }
 }
 
+// Función para ordenar combinaciones de vuelos (ida y vuelta) por precio total
 fun ordenarCombinaciones(combinaciones: List<Pair<Vuelo, Vuelo>>, orden: String): List<Pair<Vuelo, Vuelo>> {
     return if (orden == "Mayor a menor") combinaciones.sortedByDescending { it.first.precioBase + it.second.precioBase }
     else combinaciones.sortedBy { it.first.precioBase + it.second.precioBase }
 }
 
+// Función para asignar color según la temporada del vuelo
 fun colorPorTemporada(temporada: String): Color {
     return when (temporada) {
         "alta" -> Color(0xFF65010C)

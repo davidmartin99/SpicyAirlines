@@ -4,17 +4,19 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.android.gms.tasks.Tasks
 import com.spicyairlines.app.model.Pasajero
 import com.spicyairlines.app.model.Reserva
 import com.spicyairlines.app.model.Vuelo
 import java.util.*
 
+// ViewModel para gestionar la confirmación y guardado de reservas en Firebase
 class ConfirmacionReservaViewModel : ViewModel() {
 
+    // Instancias de Firebase para la base de datos y autenticación
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // Función para guardar una reserva en Firebase
     fun guardarReservaFirebase(
         vueloIda: Vuelo,
         vueloVuelta: Vuelo?,
@@ -29,18 +31,22 @@ class ConfirmacionReservaViewModel : ViewModel() {
             return
         }
 
+        // Verifica que el ID del vuelo de ida sea válido
         if (vueloIda.id.isBlank()) {
             onFailure(Exception("ID de vuelo de ida no válido"))
             return
         }
 
+        // Calcula el número de adultos y menores
         val menores = pasajeros.count { calcularEdad(it.fechaNacimiento.toDate()) < 3 }
         val adultos = pasajeros.size - menores
 
+        // Prepara los IDs de los vuelos (ida y vuelta)
         val vueloIds = mutableListOf(vueloIda.id).apply {
             vueloVuelta?.id?.takeIf { it.isNotBlank() }?.let { add(it) }
         }
 
+        // Crea el objeto de la reserva
         val reserva = Reserva(
             id = "",
             idUsuario = uid,
@@ -53,22 +59,25 @@ class ConfirmacionReservaViewModel : ViewModel() {
             menores = menores
         )
 
+        // Guarda la reserva en Firebase
         db.collection("reservas")
             .add(reserva)
             .addOnSuccessListener { docRef ->
-                val reservaId = docRef.id // ✅ ID generado automáticamente
+                val reservaId = docRef.id // ID generado automáticamente
                 val reservaRef = db.collection("reservas").document(docRef.id)
                 val batch = db.batch()
 
-                // ✅ Guardar cada pasajero con ID único generado automáticamente
+                // Guarda cada pasajero en una subcolección "pasajeros"
                 pasajeros.forEach { pasajero ->
                     val pasajeroRef = reservaRef.collection("pasajeros").document() // Genera ID único
                     val pasajeroConId = pasajero.copy(id = pasajeroRef.id) // Asigna el ID generado al pasajero
                     batch.set(pasajeroRef, pasajeroConId)
                 }
 
+                // Actualiza el ID de la reserva
                 batch.update(reservaRef, "id", reservaId)
 
+                // Confirma los cambios
                 batch.commit()
                     .addOnSuccessListener {
                         actualizarAsientos(vueloIda, clase, pasajeros.size, onFailure)
@@ -82,6 +91,7 @@ class ConfirmacionReservaViewModel : ViewModel() {
             .addOnFailureListener(onFailure)
     }
 
+    // Función para calcular la edad de un pasajero
     private fun calcularEdad(fechaNacimiento: Date): Int {
         val hoy = Calendar.getInstance()
         val nacimiento = Calendar.getInstance().apply { time = fechaNacimiento }
@@ -94,6 +104,7 @@ class ConfirmacionReservaViewModel : ViewModel() {
         return edad
     }
 
+    // Función para actualizar el número de asientos disponibles en el vuelo
     private fun actualizarAsientos(
         vuelo: Vuelo,
         clase: String,

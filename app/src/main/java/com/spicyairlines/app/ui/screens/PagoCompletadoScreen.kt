@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.spicyairlines.app.R
 import com.spicyairlines.app.components.BasePantalla
 
+// Pantalla de Confirmación de Pago Completado
 @Composable
 fun PagoCompletadoScreen(
     onVolverInicio: () -> Unit,
@@ -23,6 +24,7 @@ fun PagoCompletadoScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            // Imagen de confirmación de pago
             Image(
                 painter = painterResource(id = R.drawable.happy),
                 contentDescription = "Reserva completada",
@@ -31,6 +33,7 @@ fun PagoCompletadoScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Mensaje de éxito
             Text(
                 text = "Tu reserva se ha completado exitosamente",
                 style = MaterialTheme.typography.headlineSmall,
@@ -39,6 +42,7 @@ fun PagoCompletadoScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Botón para volver al inicio
             Button(
                 onClick = onVolverInicio,
                 modifier = Modifier.fillMaxWidth()

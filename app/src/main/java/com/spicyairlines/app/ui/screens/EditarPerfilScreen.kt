@@ -15,21 +15,26 @@ import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import com.spicyairlines.app.utils.validarCamposUsuario
 import com.spicyairlines.app.viewmodel.EditarPerfilViewModel
 
+// Pantalla para Editar Perfil del Usuario
 @Composable
 fun EditarPerfilScreen(
     viewModel: EditarPerfilViewModel,
     onBack: () -> Unit
 ) {
+    // Obtiene el contexto de la aplicación
     val contexto = LocalContext.current
+    // Estado del usuario y estado de carga
     val usuario by viewModel.usuario.collectAsState()
     val cargando by viewModel.loading.collectAsState()
 
+    // Carga inicial del usuario
     LaunchedEffect(Unit) {
         viewModel.cargarUsuario()
     }
 
     BasePantalla(onBack = onBack) { padding ->
 
+        // Muestra un indicador de carga mientras se carga el usuario
         if (cargando || usuario == null) {
             Box(
                 modifier = Modifier
@@ -42,6 +47,7 @@ fun EditarPerfilScreen(
         } else {
             val user = usuario!!
 
+            // Variables para los campos editables
             var nombre by remember { mutableStateOf(user.nombre) }
             var apellidos by remember { mutableStateOf(user.apellidos) }
             var ciudad by remember { mutableStateOf(user.ciudad) }
@@ -62,6 +68,7 @@ fun EditarPerfilScreen(
                 ) {
                     Text("Editar perfil", style = MaterialTheme.typography.titleLarge)
 
+                    // Campos del formulario
                     OutlinedTextField(
                         value = user.email,
                         onValueChange = {},
@@ -112,6 +119,7 @@ fun EditarPerfilScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    // Campo de nueva contraseña
                     OutlinedTextField(
                         value = nuevoPassword,
                         onValueChange = {
@@ -123,11 +131,13 @@ fun EditarPerfilScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    // Muestra el mensaje de error si existe
                     errorMensaje?.let {
                         MensajeErrorConIcono(mensaje = it)
                     }
                 }
 
+                // Botón para guardar cambios
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

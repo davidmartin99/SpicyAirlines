@@ -5,7 +5,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -15,6 +14,7 @@ import com.spicyairlines.app.viewmodel.DatosPasajerosViewModel
 import com.spicyairlines.app.ui.components.MensajeErrorConIcono
 import com.spicyairlines.app.ui.utils.DatePickerPasajero
 
+// Pantalla de Datos de Pasajeros
 @Composable
 fun DatosPasajerosScreen(
     sharedViewModel: SharedViewModel,
@@ -23,19 +23,23 @@ fun DatosPasajerosScreen(
     onPerfilClick: () -> Unit,
     onBack: () -> Unit
 ) {
+    // Variables para total de pasajeros
     val totalPasajeros = sharedViewModel.totalPasajeros
     val adultos by sharedViewModel.adultos.collectAsState()
     val ninos by sharedViewModel.ninos.collectAsState()
 
+    // Inicializa los formularios de pasajeros
     LaunchedEffect(Unit) {
         viewModel.inicializarFormularios(totalPasajeros, adultos, ninos)
     }
 
+    // Obtiene la lista de pasajeros y errores del ViewModel
     val pasajeros by viewModel.pasajeros.collectAsState()
     val errores by viewModel.errores.collectAsState()
 
     var mostrarErrores by remember { mutableStateOf(false) }
 
+    // Pantalla base con opciones de navegación
     BasePantalla(onBack = onBack, onPerfilClick = onPerfilClick) {
         Column(
             modifier = Modifier
@@ -44,6 +48,7 @@ fun DatosPasajerosScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            // Formulario para cada pasajero
             pasajeros.forEachIndexed { index, pasajero ->
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text("Pasajero ${index + 1}", style = MaterialTheme.typography.titleMedium)
@@ -96,6 +101,7 @@ fun DatosPasajerosScreen(
                 }
             }
 
+            // Botón para confirmar la reserva
             Button(
                 onClick = {
                     mostrarErrores = true
