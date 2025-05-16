@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 enum class NivelSeguridadContrasena(
     val descripcion: String, // Descripción del nivel de seguridad
     val color: Color, // Color asociado al nivel para la interfaz de usuario
-    val valor: Float // Valor numérico asociado al nivel (0.0 a 1.0)
+    val valor: Float // Valor numérico
 ) {
     MUY_DEBIL("Muy débil", Color(0xFFF44336), 0.1f),
     DEBIL("Débil", Color(0xFFFF9800), 0.3f),
