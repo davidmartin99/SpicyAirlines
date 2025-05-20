@@ -1,0 +1,248 @@
+@startuml SpicyAirlinesDiagram
+
+' ===== MODELOS =====
+class Usuario {
+  - email: String
+  - nombre: String
+  - apellidos: String
+  - ciudad: String
+  - provincia: String
+  - codigoPostal: String
+  - telefono: String
+}
+
+class Pasajero {
+  - id: String
+  - nombre: String
+  - apellidos: String
+  - fechaNacimiento: Timestamp
+  - numeroPasaporte: String
+  - telefono: String
+}
+
+class Vuelo {
+  - id: String
+  - origen: String
+  - aeropuertoOrigen: String
+  - destino: String
+  - aeropuertoDestino: String
+  - fechaSalida: Timestamp
+  - fechaLlegada: Timestamp
+  - duracion: String
+  - temporada: String
+  - precioBase: Int
+  - asientosTurista: Int
+  - asientosPremium: Int
+  - asientosBusiness: Int
+}
+
+class Reserva {
+  - id: String
+  - idUsuario: String
+  - vuelos: List<String>
+  - clase: String
+  - precioTotal: Double
+  - fechaReserva: Timestamp
+  - estado: Boolean
+  - adultos: Int
+  - menores: Int
+}
+
+class ReservaConVuelo {
+  + reserva: Reserva
+  + vuelo: Vuelo
+}
+
+' ===== VIEWMODELS =====
+class ConfirmacionReservaViewModel {
+  + guardarReservaFirebase()
+  + actualizarAsientos()
+}
+
+class DatosPasajerosViewModel {
+  + inicializarFormularios()
+  + actualizarCampo()
+  + actualizarFechaNacimiento()
+  + validarTodosLosPasajeros(): Boolean
+}
+
+class EditarPasajerosViewModel {
+  + cargarPasajeros(reservaId: String)
+  + cargarVuelosDeReserva(reservaId: String)
+  + actualizarNombre()
+  + actualizarApellidos()
+  + actualizarPasaporte()
+  + actualizarTelefono()
+  + actualizarFechaNacimiento()
+  + guardarCambios()
+}
+
+class EditarPerfilViewModel {
+  + cargarUsuario()
+  + guardarCambios()
+}
+
+class LoginViewModel {
+  + onEmailChange()
+  + onPasswordChange()
+  + login()
+}
+
+class PerfilViewModel {
+  + cargarReservasUsuario()
+}
+
+class PrincipalViewModel {
+  + ciudadOrigen
+  + ciudadDestino
+  + fechaIda
+  + fechaVuelta
+  + adultos
+  + ninos
+  + soloIda
+  + clase
+}
+
+class RegisterViewModel {
+  + register()
+  + onEmailChange()
+  + onPasswordChange()
+  + onNombreChange()
+  + onApellidosChange()
+  + onCiudadChange()
+  + onProvinciaChange()
+  + onCodigoPostalChange()
+  + onTelefonoChange()
+  + validarPassword()
+}
+
+class ResultadosViewModel {
+  + cargarVuelos()
+  + vueloTieneAsientos(): Boolean
+}
+
+class SharedViewModel {
+  + seleccionarVuelo()
+  + seleccionarVueloVuelta()
+  + seleccionarClase()
+  + establecerPasajeros()
+  + establecerAdultos()
+  + establecerNinos()
+  + calcularPrecioBillete()
+  + actualizarPrecioTotalReserva()
+}
+
+' ===== RELACIONES =====
+Usuario "1" -- "0..*" Reserva
+Reserva "1" -- "0..*" Pasajero
+Reserva "*" -- "*" Vuelo
+ReservaConVuelo --> Reserva
+ReservaConVuelo --> Vuelo
+
+ConfirmacionReservaViewModel --> Reserva
+ConfirmacionReservaViewModel --> Pasajero
+ConfirmacionReservaViewModel --> Vuelo
+
+DatosPasajerosViewModel --> Pasajero
+EditarPasajerosViewModel --> Pasajero
+EditarPasajerosViewModel --> Vuelo
+EditarPerfilViewModel --> Usuario
+LoginViewModel --> Usuario
+PerfilViewModel --> ReservaConVuelo
+PrincipalViewModel --> Vuelo
+RegisterViewModel --> Usuario
+ResultadosViewModel --> Vuelo
+SharedViewModel --> Vuelo
+SharedViewModel --> Pasajero
+
+' ===== COMPONENTES =====
+class BasePantalla
+class MensajeErrorConIcono
+class PasswordTextFieldConCheckbox
+
+' ===== UTILS OPCIONALES =====
+class Utils {
+  + validarCamposUsuario()
+  + validarPasajero()
+  + edadesSonValidas()
+  + calcularEdad()
+}
+
+class HoraUTC {
+  + formatearFechaHoraLocal()
+}
+
+class TimestampExtension {
+  + plusDays()
+}
+
+Utils --> Usuario
+Utils --> Pasajero
+
+' ===== NAVIGATION =====
+class Screen <<sealed class>> {
+  + AuthInicio
+  + Login
+  + Register
+  + Princiapl
+  + Resultados
+  + VueloSeleccionado
+  + DatosPasajeros
+  + ConfirmacionReserva
+  + PagoCompletado
+  + Perfil
+  + EditarPerfil
+  + EditarPasajeros
+}
+
+class NavigationGraph
+
+NavigationGraph --> Screen
+NavigationGraph --> SharedViewModel
+NavigationGraph --> ResultadosViewModel
+
+BasePantalla --> Screen
+MensajeErrorConIcono --> Screen
+PasswordTextFieldConCheckbox --> RegisterViewModel
+
+' ===== SCREENS (pantallas Composables) =====
+class PantallaInicioAuth
+class LoginScreen
+class RegisterScreen
+class PrincipalScreen
+class ResultadosScreen
+class VueloSeleccionadoScreen
+class DatosPasajerosScreen
+class ConfirmacionReservaScreen
+class PagoCompletadoScreen
+class PerfilScreen
+class EditarPerfilScreen
+class EditarPasajerosScreen
+
+' Relación con ViewModels o componentes clave
+LoginScreen --> LoginViewModel
+RegisterScreen --> RegisterViewModel
+PrincipalScreen --> PrincipalViewModel
+PrincipalScreen --> SharedViewModel
+PrincipalScreen --> ResultadosViewModel
+
+ResultadosScreen --> SharedViewModel
+ResultadosScreen --> ResultadosViewModel
+
+VueloSeleccionadoScreen --> SharedViewModel
+DatosPasajerosScreen --> SharedViewModel
+DatosPasajerosScreen --> DatosPasajerosViewModel
+
+ConfirmacionReservaScreen --> SharedViewModel
+ConfirmacionReservaScreen --> ConfirmacionReservaViewModel
+
+PagoCompletadoScreen --> SharedViewModel
+
+PerfilScreen --> PerfilViewModel
+EditarPerfilScreen --> EditarPerfilViewModel
+EditarPasajerosScreen --> EditarPasajerosViewModel
+
+TodasLasScreens --> BasePantalla
+TodasLasScreens --> MensajeErrorConIcono
+
+@enduml
