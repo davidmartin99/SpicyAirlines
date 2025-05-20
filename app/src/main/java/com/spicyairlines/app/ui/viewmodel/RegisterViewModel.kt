@@ -71,6 +71,7 @@ class RegisterViewModel : ViewModel() {
     // Funciones de actualización y validación
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
+        _error.value = if (isValidEmail(newEmail)) null else "Formato de correo inválido"
     }
 
     fun onPasswordChange(newPassword: String) {
@@ -114,6 +115,11 @@ class RegisterViewModel : ViewModel() {
         else "Teléfono inválido"
     }
 
+    // Función para verificar el formato del email
+    fun isValidEmail(email: String): Boolean {
+        val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$")
+        return email.matches(emailRegex)
+    }
     // Función para validar la seguridad de la contraseña
     fun validarPassword() {
         val password = _password.value

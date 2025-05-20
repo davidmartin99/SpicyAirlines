@@ -237,7 +237,7 @@ fun VueloCombinadoCard(ida: Vuelo, vuelta: Vuelo, sharedViewModel: SharedViewMod
             SectionVuelo(R.drawable.vuelo_vuelta, vuelta)
 
             Spacer(modifier = Modifier.height(12.dp))
-            Divider()
+            HorizontalDivider()
             Spacer(modifier = Modifier.height(8.dp))
             InfoItem(R.drawable.euro, "Precio por billete: $precioPorPasajero €")
         }
@@ -285,9 +285,9 @@ fun ordenarCombinaciones(combinaciones: List<Pair<Vuelo, Vuelo>>, orden: String)
 // Función para asignar color según la temporada del vuelo
 fun colorPorTemporada(temporada: String): Color {
     return when (temporada) {
-        "alta" -> Color(0xFF65010C)
-        "media" -> Color(0xFF9A5E02)
-        "baja" -> Color(0xFF07490A)
+        "alta" -> Color(0xCC8C2100)
+        "media" -> Color(0xCC983C1B)
+        "baja" -> Color(0xCCB98906)
         else -> Color.White
     }
 }
