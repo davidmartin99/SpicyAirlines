@@ -51,20 +51,31 @@ fun PerfilScreen(
         ) {
             // Botones de acción
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth(0.5f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Button(onClick = { auth.signOut(); onCerrarSesion() }) {
+                Button(
+                    onClick = { auth.signOut(); onCerrarSesion() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text("Cerrar sesión")
                 }
 
-                Button(onClick = { showDropdown = !showDropdown }) {
-                    Text("Reservas")
+                Button(
+                    onClick = { onEditarPerfil() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Editar perfil")
                 }
 
-                Button(onClick = { onEditarPerfil() }) {
-                    Text("Editar perfil")
+                Button(
+                    onClick = { showDropdown = !showDropdown },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Reservas")
                 }
             }
 
