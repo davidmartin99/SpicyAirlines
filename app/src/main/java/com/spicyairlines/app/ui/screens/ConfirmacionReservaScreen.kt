@@ -106,7 +106,7 @@ fun ConfirmacionReservaScreen(
                         Text("Teléfono: ${pasajero.telefono}")
                     }
 
-                    Divider(modifier = Modifier.padding(top = 12.dp))
+                    HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
                 }
             }
 

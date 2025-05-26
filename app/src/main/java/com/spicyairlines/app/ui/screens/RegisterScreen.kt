@@ -106,7 +106,7 @@ fun RegisterScreen(
 
             }
 
-            item { Divider(modifier = Modifier.padding(vertical = 8.dp)) }
+            item { HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) }
 
             // Datos personales
             item {
@@ -133,7 +133,7 @@ fun RegisterScreen(
                 errorApellidos?.let { MensajeErrorConIcono(mensaje = it) }
             }
 
-            item { Divider(modifier = Modifier.padding(vertical = 8.dp)) }
+            item { HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) }
 
             // Dirección
             item {

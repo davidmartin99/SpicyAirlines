@@ -184,7 +184,7 @@ fun VueloCard(vuelo: Vuelo, sharedViewModel: SharedViewModel, onClick: () -> Uni
             InfoItem(R.drawable.reloj, "Llegada: ${formatearFechaHoraLocal(vuelo.fechaLlegada, vuelo.destino)}")
             InfoItem(R.drawable.duracion, "Duración: ${vuelo.duracion}")
             Spacer(modifier = Modifier.height(12.dp))
-            Divider()
+            HorizontalDivider()
             Spacer(modifier = Modifier.height(8.dp))
             InfoItem(R.drawable.euro, "Precio por billete: $precioPorPasajero €")
         }

@@ -64,7 +64,7 @@ fun VueloSeleccionadoScreen(
             }
 
             item {
-                Divider()
+                HorizontalDivider()
             }
 
             // Detalles del vuelo

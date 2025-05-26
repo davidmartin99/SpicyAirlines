@@ -116,7 +116,7 @@ fun EditarPasajerosScreen(
                                         Text("Llegada: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(vuelo.fechaLlegada.toDate())}")
                                     }
 
-                                    Divider()
+                                    HorizontalDivider()
                                 }
                             }
                         }
@@ -188,7 +188,7 @@ fun EditarPasajerosScreen(
                             onDateSelected = { viewModel.actualizarFechaNacimiento(index, it) }
                         )
 
-                        Divider(thickness = 1.dp)
+                        HorizontalDivider(thickness = 1.dp)
                     }
                 }
 
