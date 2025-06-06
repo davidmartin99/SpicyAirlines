@@ -115,10 +115,18 @@ fun PrincipalScreen(
                         onBuscarClick()
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(55.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                ),
                 enabled = viewModel.fechaIda.value != null && viewModel.ciudadDestino.value.isNotBlank()
             ) {
-                Text("Buscar vuelos")
+                Text(
+                    text = "Buscar vuelos",
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
         }
     }
@@ -175,7 +183,6 @@ fun SelectorViajerosClase(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Clase", fontWeight = FontWeight.Medium)
         // Menú desplegable para seleccionar clase
         ExposedDropdownMenuBox(expanded = expandedClase, onExpandedChange = { expandedClase = !expandedClase }) {
             TextField(

@@ -4,9 +4,11 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
+
 android {
     namespace = "com.spicyairlines.app"
     compileSdk = 35
+
 
     defaultConfig {
         applicationId = "com.spicyairlines.app"
@@ -15,11 +17,13 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
     }
+
 
     buildTypes {
         release {
@@ -43,7 +47,6 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
-    // Exclusión de los archivos duplicados (solución a errores comunes)
     packaging {
         resources {
             excludes += setOf(
@@ -66,6 +69,7 @@ android {
             it.jvmArgs("-noverify", "-XX:TieredStopAtLevel=1")
         }
 
+
         // Configuración para pruebas de UI y de Integración
         managedDevices {
             devices {
@@ -80,7 +84,9 @@ android {
     }
 }
 
+
 dependencies {
+
 
     // Dependencias de Jetpack y AndroidX
     implementation(libs.androidx.core.ktx)
@@ -94,17 +100,22 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 
 
+
+
     // Firebase - Se asegura que BOM esté antes que las demás dependencias
     implementation(platform(libs.firebase.bom)) // Firebase BOM
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
 
+
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.navigation.runtime.android)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.foundation.android)
-    implementation(libs.androidx.junit.ktx) // Firebase Authentication
+    implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.foundation.android) // Firebase Authentication
+
 
     // Dependencias de pruebas (Unit Testing) con MockK y JUnit 4
     testImplementation("io.mockk:mockk:1.13.3")
@@ -112,6 +123,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2") // JUnit 4
     testImplementation("androidx.arch.core:core-testing:2.1.0") // LiveData testing
     testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.22") // Necesario para MockK
+
 
     // Dependencias de pruebas instrumentadas (UI y Android Tests)
     androidTestImplementation("io.mockk:mockk-android:1.13.3")
@@ -121,10 +133,14 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
 
+
     // Debug (solo para herramientas de desarrollo y pruebas visuales)
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
 
+
 // Asegurarse de aplicar el plugin de Google Services
 apply(plugin = "com.google.gms.google-services")
+
+

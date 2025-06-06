@@ -34,7 +34,7 @@ fun PantallaInicioAuth(
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.92f)
-                    .fillMaxHeight(0.88f)
+                    .fillMaxHeight(0.53f)
                     .border(
                         width = 2.dp,
                         color = MaterialTheme.colorScheme.primary,
