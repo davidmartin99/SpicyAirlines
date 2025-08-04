@@ -31,5 +31,5 @@ Aplicación Android para reservar vuelos entre ciudades de China y Madrid. Proye
 ## 📝 Memoria del proyecto
 
 Puedes consultar la memoria completa del TFG en PDF aquí:  
-👉 [Ver memoria]()
+👉 [Ver memoria](./memoria/Memoria_SpicyAirlines_1.pdf)
 
